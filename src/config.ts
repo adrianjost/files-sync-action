@@ -9,6 +9,9 @@ export interface Config {
 	RETRIES: number;
 }
 
+process.env.INPUT_FILES = "^package.json$";
+process.env.INPUT_REPOSITORIES = "adrianjost/.github";
+
 export function getConfig(): Config {
 	const config = {
 		GITHUB_TOKEN: core.getInput("GITHUB_TOKEN", { required: true }),

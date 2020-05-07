@@ -16,6 +16,7 @@ export const publicKeyCache = new Map<Repository, PublicKey>();
 
 const RetryOctokit = Octokit.plugin(retry);
 
+// eslint-disable-next-line @typescript-eslint/promise-function-async
 export function DefaultOctokit({ ...octokitOptions }): any {
 	const retries = getConfig().RETRIES;
 
@@ -114,15 +115,29 @@ async function listAllRepoFiles({
 	octokit: any;
 	repo: Repository;
 }): Promise<string[]> {
-	const files = await octokit.paginate(
-		"GET /repos/:owner/:repo/contents/:path",
-		{
-			owner,
-			repo,
-		}
-	);
+	const latestCommits = await octokit.request("GET /repos/:repo/commits", {
+		repo: repo.full_name,
+	});
 
-	console.log(files);
+	const commit = await octokit.request("GET /repos/:repo/git/commits/:sha", {
+		sha: latestCommits.data[0].sha,
+		repo: repo.full_name,
+	});
+
+	const tree = await octokit.paginate("GET /repos/:repo/git/trees/:sha", {
+		repo: repo.full_name,
+		sha: commit.data.tree.sha,
+	});
+
+	console.log("tree", JSON.stringify(tree[0].tree, undefined, 2));
+
+	const entries = await octokit.paginate("GET /repos/:repo/contents", {
+		repo: repo.full_name,
+	});
+
+	const files = entries
+		.filter(({ type }: { type: "dir" | "file" }) => type === "file")
+		.map(({ path }: { path: string }) => path);
 
 	return files;
 }
@@ -144,17 +159,15 @@ export async function setFilesForRepo(
 	repo: Repository,
 	dry_run: boolean
 ): Promise<void> {
-	const [repo_owner, repo_name] = repo.full_name.split("/");
-
-	core.info(`Set \`${name} = ***\` on ${repo.full_name}`);
+	console.log(
+		`REPO (${repo.full_name}) FILES:`,
+		await listAllRepoFiles({
+			octokit,
+			repo,
+		})
+	);
 
 	if (!dry_run) {
-		return octokit.actions.createOrUpdateSecretForRepo({
-			owner: repo_owner,
-			repo: repo_name,
-			name,
-			key_id: publicKey.key_id,
-			encrypted_value,
-		});
+		return Promise.resolve();
 	}
 }
