@@ -1,0 +1,44 @@
+# action.yml
+name: "Secrets Sync Action"
+author: Justin Poehnelt
+branding:
+  icon: "copy"
+  color: "red"
+description: "Copies secrets from the action's environment to many other repos."
+inputs:
+  github_token:
+    description: "Token to use to get repos and write secrets"
+    required: true
+  repositories:
+    description: |
+      New line deliminated regex expressions to select repositories. Repositires
+      are limited to those in which the token user is an owner or collaborator.
+      Set `REPOSITORIES_LIST_REGEX` to `False` to use a hardcoded list of
+      repositories.
+    required: true
+  repositories_list_regex:
+    default: "true"
+    description: |
+      If this value is `true`(default), the action will find all repositories
+      available to the token user and filter based upon the regex provided. If
+      it is false, it is expected that `REPOSITORIES` will be an a new line
+      deliminated list in the form of org/name.
+    required: false
+  secrets:
+    description: |
+      New line deliminated regex expressions to select values from `process.env`. 
+      Use the action env to pass secrets from the repository in which this action 
+      runs with the `env` attribute of the step.
+    required: true
+  dry_run:
+    description: |
+      Run everything except for secret create and update functionality.
+    required: false
+  retries:
+    description: |
+      The number of retries to attempt when making Github calls.
+    default: "3"
+    required: false
+runs:
+  using: "node12"
+  main: "dist/index.js"
