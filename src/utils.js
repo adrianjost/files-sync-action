@@ -3,7 +3,7 @@ const path = require("path");
 const listDir = require("recursive-readdir");
 const rimraf = require("rimraf");
 
-const { TMPDIR, FILE_PATTERNS } = require("./context");
+const { TMPDIR, FILE_PATTERNS, DRY_RUN } = require("./context");
 
 const getRepoPath = (repoFullname) => {
 	return path.join(TMPDIR, repoFullname);
@@ -35,13 +35,18 @@ const getFiles = async (repoFullname) => {
 
 const removeFiles = async (filePaths) => {
 	console.log("REMOVE FILES", filePaths);
-	// TODO: implement DRY_RUN for removeFiles
+	if (DRY_RUN) {
+		return;
+	}
 	return Promise.all(filePaths.map((file) => fs.promises.unlink(file)));
 };
 
 const copyFile = async (from, to) => {
 	// TODO: implement DRY_RUN for copyFile
 	console.log("copy", from, "to", to);
+	if (DRY_RUN) {
+		return;
+	}
 	await fs.promises.mkdir(path.dirname(to), { recursive: true });
 	await fs.promises.copyFile(from, to);
 };

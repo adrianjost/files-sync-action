@@ -1,7 +1,7 @@
 const core = require("@actions/core");
 const path = require("path");
 
-const { SRC_REPO, TARGET_REPOS, TMPDIR } = require("./context");
+const { SRC_REPO, TARGET_REPOS, TMPDIR, SKIP_CLEANUP } = require("./context");
 const git = require("./git");
 const {
 	getFiles,
@@ -54,8 +54,9 @@ const main = async () => {
 	} catch (err) {
 		error = err;
 	}
-	// TODO: add option to disable cleanup for debugging purposes
-	await removeDir(TMPDIR);
+	if (!SKIP_CLEANUP) {
+		await removeDir(TMPDIR);
+	}
 	if (error) {
 		throw error;
 	}

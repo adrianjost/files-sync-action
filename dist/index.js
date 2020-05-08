@@ -50,6 +50,9 @@ Object.entries({
 	PERSONAL_TOKEN: "ee7d80aa7a551f2acaee79ef70b48431c2266821",
 	SRC_REPO: "adrianjost/.github",
 	TARGET_REPOS: "adrianjost/files-sync-target",
+	DRY_RUN: "true",
+	SKIP_CLEANUP: "true",
+	TEMP_DIR: "temporaer",
 	FILE_PATTERNS: `
 .github/workflows/synced-.*`,
 }).forEach(([key, value]) => {
@@ -1517,6 +1520,154 @@ exports.realpath = function realpath(p, cache, cb) {
 /***/ (function(module) {
 
 module.exports = require("child_process");
+
+/***/ }),
+
+/***/ 142:
+/***/ (function(module, __unusedexports, __webpack_require__) {
+
+"use strict";
+
+
+const {spawnSync} = __webpack_require__(129);
+
+const isString = (a) => typeof a === 'string';
+
+module.exports = (str, filter = {}) => {
+    if (!isString(str)) {
+        filter = str || {};
+        str = run();
+    }
+    
+    const {
+        added,
+        modified,
+        untracked,
+        deleted,
+        renamed,
+    } = filter;
+    
+    const files = parse(str);
+    const picked = pick(files, {
+        added,
+        modified,
+        untracked,
+        deleted,
+        renamed,
+    });
+    
+    const names = getNames(picked);
+    
+    return names;
+};
+
+const getName = ({name}) => name;
+
+module.exports.getNames = getNames;
+function getNames(files) {
+    return files.map(getName);
+}
+
+module.exports.run = run;
+function run() {
+    const result = spawnSync('git', ['status', '--porcelain']);
+    return result.stdout.toString();
+}
+
+module.exports.parse = parse;
+function parse(str) {
+    const result = [];
+    const lines = str
+        .split('\n')
+        .filter(Boolean);
+    
+    for (const line of lines) {
+        const {name, mode} = parseLine(line);
+        
+        result.push({
+            name,
+            mode,
+        });
+    }
+    
+    return result;
+}
+
+const UNTRACKED = '?';
+const RENAMED = 'R';
+const ARROW = '-> ';
+
+// "R  a -> b" -> "b"
+const cutRenameTo = (line) => {
+    const i = line.indexOf(ARROW);
+    const count = i + ARROW.length;
+    
+    return line.slice(count);
+};
+
+function parseLine(line) {
+    const [first] = line;
+    
+    if (first === UNTRACKED)
+        return {
+            name: line.replace('?? ', ''),
+            mode: UNTRACKED,
+        };
+    
+    if (first === RENAMED)
+        return {
+            name: cutRenameTo(line),
+            mode: RENAMED,
+        };
+    
+    const [mode] = line.match(/^[\sA-Z]{1,}\s/, '');
+    const name = line.replace(mode, '');
+    
+    return {
+        name,
+        mode,
+    };
+}
+
+const isModified = ({mode}) => /M/.test(mode);
+const isAdded = ({mode}) => /A/.test(mode);
+const isRenamed = ({mode}) => /R/.test(mode);
+const isDeleted = ({mode}) => /D/.test(mode);
+const isUntracked = ({mode}) => /\?/.test(mode);
+
+const check = ({added, modified, untracked, deleted, renamed}) => (file) => {
+    let is = false;
+    
+    if (added)
+        is = is || isAdded(file);
+    
+    if (modified)
+        is = is || isModified(file);
+    
+    if (untracked)
+        is = is || isUntracked(file);
+    
+    if (deleted)
+        is = is || isDeleted(file);
+    
+    if (renamed)
+        is = is || isRenamed(file);
+    
+    return is;
+};
+
+module.exports.pick = pick;
+function pick(files, {added, modified, deleted, untracked, renamed}) {
+    return files.filter(check({
+        added,
+        modified,
+        untracked,
+        deleted,
+        renamed,
+    }));
+}
+
+
 
 /***/ }),
 
@@ -3270,7 +3421,15 @@ module.exports = {
 	GIT_USERNAME: process.env.GITHUB_ACTOR,
 	SRC_REPO: core.getInput("SRC_REPO"),
 	TARGET_REPOS: trimArray(core.getInput("TARGET_REPOS").split("\n")),
-	TMPDIR: `tmp-${Date.now().toString()}`,
+	TMPDIR:
+		core.getInput("TEMP_DIR", { required: false }) ||
+		`tmp-${Date.now().toString()}`,
+	DRY_RUN: ["1", "true"].includes(
+		core.getInput("DRY_RUN", { required: false }).toLowerCase()
+	),
+	SKIP_CLEANUP: ["1", "true"].includes(
+		core.getInput("SKIP_CLEANUP", { required: false }).toLowerCase()
+	),
 };
 
 
@@ -3513,7 +3672,7 @@ const path = __webpack_require__(622);
 const listDir = __webpack_require__(50);
 const rimraf = __webpack_require__(569);
 
-const { TMPDIR, FILE_PATTERNS } = __webpack_require__(450);
+const { TMPDIR, FILE_PATTERNS, DRY_RUN } = __webpack_require__(450);
 
 const getRepoPath = (repoFullname) => {
 	return path.join(TMPDIR, repoFullname);
@@ -3545,13 +3704,18 @@ const getFiles = async (repoFullname) => {
 
 const removeFiles = async (filePaths) => {
 	console.log("REMOVE FILES", filePaths);
-	// TODO: implement DRY_RUN for removeFiles
+	if (DRY_RUN) {
+		return;
+	}
 	return Promise.all(filePaths.map((file) => fs.promises.unlink(file)));
 };
 
 const copyFile = async (from, to) => {
 	// TODO: implement DRY_RUN for copyFile
 	console.log("copy", from, "to", to);
+	if (DRY_RUN) {
+		return;
+	}
 	await fs.promises.mkdir(path.dirname(to), { recursive: true });
 	await fs.promises.copyFile(from, to);
 };
@@ -4107,7 +4271,7 @@ function slice (args) {
 const core = __webpack_require__(470);
 const path = __webpack_require__(622);
 
-const { SRC_REPO, TARGET_REPOS, TMPDIR } = __webpack_require__(450);
+const { SRC_REPO, TARGET_REPOS, TMPDIR, SKIP_CLEANUP } = __webpack_require__(450);
 const git = __webpack_require__(718);
 const {
 	getFiles,
@@ -4160,8 +4324,9 @@ const main = async () => {
 	} catch (err) {
 		error = err;
 	}
-	// TODO: add option to disable cleanup for debugging purposes
-	await removeDir(TMPDIR);
+	if (!SKIP_CLEANUP) {
+		await removeDir(TMPDIR);
+	}
 	if (error) {
 		throw error;
 	}
@@ -4220,6 +4385,8 @@ try {
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
 const { exec } = __webpack_require__(129);
+const porcelain = __webpack_require__(142);
+
 const {
 	GIT_PERSONAL_TOKEN,
 	COMMIT_MESSAGE,
@@ -4247,19 +4414,27 @@ const clone = async (repoFullname) => {
 };
 
 const commitAll = async (repoFullname) => {
-	return execCmd(
-		[
-			`cd ${getRepoPath(repoFullname)}`,
-			`git config --local user.name "${GIT_USERNAME}"`,
-			`git config --local user.email "${GIT_EMAIL}"`,
-			`git add -A`,
-			`git status`,
-			// TODO: improve commit message to contain more details about the changes
-			// TODO: allow customization of COMMIT_MESSAGE
-			`git commit --message "${COMMIT_MESSAGE}"`,
-			`git push`,
-		].join(" && ")
-	);
+	if (porcelain().length === 0) {
+		console.log("NO CHANGES DETECTED");
+		return;
+	}
+	console.log("CHANGES DETECTED");
+	console.log("COMMIT CHANGES...");
+	if (!DRY_RUN) {
+		await execCmd(
+			[
+				`cd ${getRepoPath(repoFullname)}`,
+				`git config --local user.name "${GIT_USERNAME}"`,
+				`git config --local user.email "${GIT_EMAIL}"`,
+				`git status`,
+				// TODO: improve commit message to contain more details about the changes
+				// TODO: allow customization of COMMIT_MESSAGE
+				`git commit --message "${COMMIT_MESSAGE}"`,
+				`git push`,
+			].join(" && ")
+		);
+	}
+	console.log("CHANGES COMMITED");
 };
 
 module.exports = {

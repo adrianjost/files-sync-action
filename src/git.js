@@ -1,4 +1,6 @@
 const { exec } = require("child_process");
+const porcelain = require("@putout/git-status-porcelain");
+
 const {
 	GIT_PERSONAL_TOKEN,
 	COMMIT_MESSAGE,
@@ -26,19 +28,27 @@ const clone = async (repoFullname) => {
 };
 
 const commitAll = async (repoFullname) => {
-	return execCmd(
-		[
-			`cd ${getRepoPath(repoFullname)}`,
-			`git config --local user.name "${GIT_USERNAME}"`,
-			`git config --local user.email "${GIT_EMAIL}"`,
-			`git add -A`,
-			`git status`,
-			// TODO: improve commit message to contain more details about the changes
-			// TODO: allow customization of COMMIT_MESSAGE
-			`git commit --message "${COMMIT_MESSAGE}"`,
-			`git push`,
-		].join(" && ")
-	);
+	if (porcelain().length === 0) {
+		console.log("NO CHANGES DETECTED");
+		return;
+	}
+	console.log("CHANGES DETECTED");
+	console.log("COMMIT CHANGES...");
+	if (!DRY_RUN) {
+		await execCmd(
+			[
+				`cd ${getRepoPath(repoFullname)}`,
+				`git config --local user.name "${GIT_USERNAME}"`,
+				`git config --local user.email "${GIT_EMAIL}"`,
+				`git status`,
+				// TODO: improve commit message to contain more details about the changes
+				// TODO: allow customization of COMMIT_MESSAGE
+				`git commit --message "${COMMIT_MESSAGE}"`,
+				`git push`,
+			].join(" && ")
+		);
+	}
+	console.log("CHANGES COMMITED");
 };
 
 module.exports = {

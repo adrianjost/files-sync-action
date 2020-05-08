@@ -34,5 +34,13 @@ module.exports = {
 	GIT_USERNAME: process.env.GITHUB_ACTOR,
 	SRC_REPO: core.getInput("SRC_REPO"),
 	TARGET_REPOS: trimArray(core.getInput("TARGET_REPOS").split("\n")),
-	TMPDIR: `tmp-${Date.now().toString()}`,
+	TMPDIR:
+		core.getInput("TEMP_DIR", { required: false }) ||
+		`tmp-${Date.now().toString()}`,
+	DRY_RUN: ["1", "true"].includes(
+		core.getInput("DRY_RUN", { required: false }).toLowerCase()
+	),
+	SKIP_CLEANUP: ["1", "true"].includes(
+		core.getInput("SKIP_CLEANUP", { required: false }).toLowerCase()
+	),
 };
