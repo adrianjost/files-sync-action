@@ -16,7 +16,7 @@ const getRepoRelativeFilePath = (repoFullname, filePath) => {
 const getMatchingFiles = (files) => {
 	console.log(FILE_PATTERNS);
 	return files.filter((file) => {
-		// TODO: document behaviour that all filepaths can be matched using a single fwd slash
+		// TODO: document behaviour that all filepaths can be matched using a single forward slash
 		cleanFile = file.replace(TMPDIR, "").replace(/\\/g, "/").replace(/^\//, "");
 		const hasMatch = FILE_PATTERNS.some((r) => r.test(cleanFile));
 		console.log("TEST", cleanFile, "FOR MATCH =>", hasMatch);
@@ -42,7 +42,6 @@ const removeFiles = async (filePaths) => {
 };
 
 const copyFile = async (from, to) => {
-	// TODO: implement DRY_RUN for copyFile
 	console.log("copy", from, "to", to);
 	if (DRY_RUN) {
 		return;

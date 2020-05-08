@@ -29,11 +29,19 @@ module.exports = {
 	get COMMIT_MESSAGE() {
 		return `Update file(s) from \"${this.SRC_REPO}\"`;
 	},
-	GIT_EMAIL: `${process.env.GITHUB_ACTOR}@users.noreply.github.com`,
-	GIT_PERSONAL_TOKEN: core.getInput("PERSONAL_TOKEN"),
-	GIT_USERNAME: process.env.GITHUB_ACTOR,
-	SRC_REPO: core.getInput("SRC_REPO"),
-	TARGET_REPOS: trimArray(core.getInput("TARGET_REPOS").split("\n")),
+	GIT_EMAIL:
+		core.getInput("GIT_EMAIL") ||
+		`${process.env.GITHUB_ACTOR}@users.noreply.github.com`,
+	GIT_PERSONAL_TOKEN: core.getInput("PERSONAL_TOKEN", { required: true }),
+	GIT_USERNAME:
+		core.getInput("GIT_USERNAME", { required: false }) ||
+		process.env.GITHUB_ACTOR,
+	SRC_REPO:
+		core.getInput("SRC_REPO", { required: false }) ||
+		process.env.GITHUB_REPOSITORY,
+	TARGET_REPOS: trimArray(
+		core.getInput("TARGET_REPOS", { required: true }).split("\n")
+	),
 	TMPDIR:
 		core.getInput("TEMP_DIR", { required: false }) ||
 		`tmp-${Date.now().toString()}`,

@@ -19,7 +19,7 @@ function execCmd(command) {
 }
 
 const clone = async (repoFullname) => {
-	// TODO: make sure there are no changes in the current repo after cloning
+	// TODO: allow customizing the branch
 	return execCmd(
 		`git clone --depth 1 https://${GIT_PERSONAL_TOKEN}@github.com/${repoFullname}.git ${getRepoPath(
 			repoFullname

@@ -3416,11 +3416,19 @@ module.exports = {
 	get COMMIT_MESSAGE() {
 		return `Update file(s) from \"${this.SRC_REPO}\"`;
 	},
-	GIT_EMAIL: `${process.env.GITHUB_ACTOR}@users.noreply.github.com`,
-	GIT_PERSONAL_TOKEN: core.getInput("PERSONAL_TOKEN"),
-	GIT_USERNAME: process.env.GITHUB_ACTOR,
-	SRC_REPO: core.getInput("SRC_REPO"),
-	TARGET_REPOS: trimArray(core.getInput("TARGET_REPOS").split("\n")),
+	GIT_EMAIL:
+		core.getInput("GIT_EMAIL") ||
+		`${process.env.GITHUB_ACTOR}@users.noreply.github.com`,
+	GIT_PERSONAL_TOKEN: core.getInput("PERSONAL_TOKEN", { required: true }),
+	GIT_USERNAME:
+		core.getInput("GIT_USERNAME", { required: false }) ||
+		process.env.GITHUB_ACTOR,
+	SRC_REPO:
+		core.getInput("SRC_REPO", { required: false }) ||
+		process.env.GITHUB_REPOSITORY,
+	TARGET_REPOS: trimArray(
+		core.getInput("TARGET_REPOS", { required: true }).split("\n")
+	),
 	TMPDIR:
 		core.getInput("TEMP_DIR", { required: false }) ||
 		`tmp-${Date.now().toString()}`,
@@ -3685,7 +3693,7 @@ const getRepoRelativeFilePath = (repoFullname, filePath) => {
 const getMatchingFiles = (files) => {
 	console.log(FILE_PATTERNS);
 	return files.filter((file) => {
-		// TODO: document behaviour that all filepaths can be matched using a single fwd slash
+		// TODO: document behaviour that all filepaths can be matched using a single forward slash
 		cleanFile = file.replace(TMPDIR, "").replace(/\\/g, "/").replace(/^\//, "");
 		const hasMatch = FILE_PATTERNS.some((r) => r.test(cleanFile));
 		console.log("TEST", cleanFile, "FOR MATCH =>", hasMatch);
@@ -3711,7 +3719,6 @@ const removeFiles = async (filePaths) => {
 };
 
 const copyFile = async (from, to) => {
-	// TODO: implement DRY_RUN for copyFile
 	console.log("copy", from, "to", to);
 	if (DRY_RUN) {
 		return;
@@ -4405,7 +4412,7 @@ function execCmd(command) {
 }
 
 const clone = async (repoFullname) => {
-	// TODO: make sure there are no changes in the current repo after cloning
+	// TODO: allow customizing the branch
 	return execCmd(
 		`git clone --depth 1 https://${GIT_PERSONAL_TOKEN}@github.com/${repoFullname}.git ${getRepoPath(
 			repoFullname
