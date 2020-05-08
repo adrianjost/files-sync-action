@@ -1,6 +1,6 @@
 # Dependency directory
 node_modules
-lib/
+tmp*
 
 # Rest pulled from https://github.com/github/gitignore/blob/master/Node.gitignore
 # Logs

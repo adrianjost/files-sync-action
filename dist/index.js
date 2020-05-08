@@ -47,14 +47,13 @@ module.exports =
 /***/ (function() {
 
 Object.entries({
+	DRY_RUN: "true",
+	FILE_PATTERNS: `.github/workflows/synced-.*`,
 	PERSONAL_TOKEN: "ee7d80aa7a551f2acaee79ef70b48431c2266821",
+	SKIP_CLEANUP: "true",
 	SRC_REPO: "adrianjost/.github",
 	TARGET_REPOS: "adrianjost/files-sync-target",
-	DRY_RUN: "true",
-	SKIP_CLEANUP: "true",
 	TEMP_DIR: "temporaer",
-	FILE_PATTERNS: `
-.github/workflows/synced-.*`,
 }).forEach(([key, value]) => {
 	process.env[`INPUT_${key}`] = value;
 });
@@ -3410,12 +3409,15 @@ const trimArray = (arr) => {
 };
 
 module.exports = {
-	FILE_PATTERNS: trimArray(core.getInput("FILE_PATTERNS").split("\n")).map(
-		(s) => new RegExp(s)
-	),
 	get COMMIT_MESSAGE() {
 		return `Update file(s) from \"${this.SRC_REPO}\"`;
 	},
+	DRY_RUN: ["1", "true"].includes(
+		core.getInput("DRY_RUN", { required: false }).toLowerCase()
+	),
+	FILE_PATTERNS: trimArray(core.getInput("FILE_PATTERNS").split("\n")).map(
+		(s) => new RegExp(s)
+	),
 	GIT_EMAIL:
 		core.getInput("GIT_EMAIL") ||
 		`${process.env.GITHUB_ACTOR}@users.noreply.github.com`,
@@ -3423,6 +3425,9 @@ module.exports = {
 	GIT_USERNAME:
 		core.getInput("GIT_USERNAME", { required: false }) ||
 		process.env.GITHUB_ACTOR,
+	SKIP_CLEANUP: ["1", "true"].includes(
+		core.getInput("SKIP_CLEANUP", { required: false }).toLowerCase()
+	),
 	SRC_REPO:
 		core.getInput("SRC_REPO", { required: false }) ||
 		process.env.GITHUB_REPOSITORY,
@@ -3432,12 +3437,6 @@ module.exports = {
 	TMPDIR:
 		core.getInput("TEMP_DIR", { required: false }) ||
 		`tmp-${Date.now().toString()}`,
-	DRY_RUN: ["1", "true"].includes(
-		core.getInput("DRY_RUN", { required: false }).toLowerCase()
-	),
-	SKIP_CLEANUP: ["1", "true"].includes(
-		core.getInput("SKIP_CLEANUP", { required: false }).toLowerCase()
-	),
 };
 
 
@@ -3749,8 +3748,8 @@ module.exports = {
 	getFiles,
 	getRepoPath,
 	getRepoRelativeFilePath,
-	removeFiles,
 	removeDir,
+	removeFiles,
 };
 
 

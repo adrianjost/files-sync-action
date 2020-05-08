@@ -72,6 +72,6 @@ module.exports = {
 	getFiles,
 	getRepoPath,
 	getRepoRelativeFilePath,
-	removeFiles,
 	removeDir,
+	removeFiles,
 };
