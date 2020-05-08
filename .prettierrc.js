@@ -10,10 +10,4 @@ module.exports = {
 	endOfLine: "lf",
 	semi: true,
 	singleQuote: false,
-	overrides: [
-		{
-			files: ".nvmrc",
-			options: { parser: "json" },
-		},
-	],
 };

@@ -1,6 +1,6 @@
 # action.yml
 name: "Secrets Sync Action"
-author: Justin Poehnelt
+author: Adrian Jost
 branding:
   icon: "copy"
   color: "red"
