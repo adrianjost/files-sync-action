@@ -2,14 +2,14 @@ const core = require("@actions/core");
 
 const logger = require("./log");
 
-// TODO: check that all required envs are defined
+// TODO [$5eb6b95ae4315b0007b33cce]: check that all required envs are defined
 
-// TODO: check that tmp directory does not exist already
+// TODO [$5eb6b95ae4315b0007b33ccf]: check that tmp directory does not exist already
 // shuffle name or clean directory
 
-// TODO: validate that SRC_REPO is not in TARGET_REPOS
+// TODO [$5eb6b95ae4315b0007b33cd0]: validate that SRC_REPO is not in TARGET_REPOS
 
-// TODO: add JSDoc comment
+// TODO [$5eb6b95ae4315b0007b33cd1]: add JSDoc comment
 const parseMultilineInput = (multilineInput) => {
 	return multilineInput.split("\n").map((e) => e.trim());
 };
