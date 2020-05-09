@@ -54,6 +54,7 @@ const removeFiles = async (filePaths) => {
 };
 
 const copyFile = async (from, to) => {
+	// TODO: add option to skip replacement of files
 	logger.info("copy", from, "to", to);
 	if (DRY_RUN) {
 		return;
