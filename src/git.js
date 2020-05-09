@@ -29,7 +29,15 @@ const clone = async (repoFullname) => {
 };
 
 const commitAll = async (repoFullname) => {
-	if (porcelain().length === 0) {
+	if (
+		porcelain({
+			added: true,
+			deleted: true,
+			modified: true,
+			renamed: true,
+			untracked: true,
+		}).length === 0
+	) {
 		logger.info("NO CHANGES DETECTED");
 		return;
 	}
