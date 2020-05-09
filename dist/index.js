@@ -43,26 +43,6 @@ module.exports =
 /************************************************************************/
 /******/ ({
 
-/***/ 1:
-/***/ (function() {
-
-Object.entries({
-	DRY_RUN: "true",
-	FILE_PATTERNS: `.github/workflows/synced-.*`,
-	PERSONAL_TOKEN: "ee7d80aa7a551f2acaee79ef70b48431c2266821",
-	SKIP_CLEANUP: "true",
-	SRC_REPO: "adrianjost/.github",
-	TARGET_REPOS: "adrianjost/files-sync-target",
-	TEMP_DIR: "temporaer",
-}).forEach(([key, value]) => {
-	process.env[`INPUT_${key}`] = value;
-});
-
-process.env.GITHUB_ACTOR = "adrianjost-Bot";
-
-
-/***/ }),
-
 /***/ 11:
 /***/ (function(module) {
 
@@ -3384,17 +3364,7 @@ function escapeProperty(s) {
 /***/ 450:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
-const path = __webpack_require__(622);
 const core = __webpack_require__(470);
-
-try {
-	__webpack_require__(1);
-} catch (e) {
-	console.error(
-		"failed to load envs. You can set env variables inside src/envs.js",
-		e
-	);
-}
 
 // TODO: check that all required envs are defined
 
@@ -3404,8 +3374,8 @@ try {
 // TODO: validate that SRC_REPO is not in TARGET_REPOS
 
 // TODO: add JSDoc comment
-const trimArray = (arr) => {
-	return arr.map((e) => e.trim());
+const parseMultilineInput = (multilineInput) => {
+	return multilineInput.split("\n").map((e) => e.trim());
 };
 
 module.exports = {
@@ -3415,24 +3385,27 @@ module.exports = {
 	DRY_RUN: ["1", "true"].includes(
 		core.getInput("DRY_RUN", { required: false }).toLowerCase()
 	),
-	FILE_PATTERNS: trimArray(core.getInput("FILE_PATTERNS").split("\n")).map(
+	FILE_PATTERNS: parseMultilineInput(core.getInput("FILE_PATTERNS")).map(
 		(s) => new RegExp(s)
 	),
+	GITHUB_TOKEN: core.getInput("GITHUB_TOKEN", { required: true }),
 	GIT_EMAIL:
 		core.getInput("GIT_EMAIL") ||
 		`${process.env.GITHUB_ACTOR}@users.noreply.github.com`,
-	GIT_PERSONAL_TOKEN: core.getInput("PERSONAL_TOKEN", { required: true }),
 	GIT_USERNAME:
 		core.getInput("GIT_USERNAME", { required: false }) ||
 		process.env.GITHUB_ACTOR,
 	SKIP_CLEANUP: ["1", "true"].includes(
 		core.getInput("SKIP_CLEANUP", { required: false }).toLowerCase()
 	),
+	SKIP_DELETE: ["1", "true"].includes(
+		core.getInput("SKIP_DELETE", { required: false }).toLowerCase()
+	),
 	SRC_REPO:
 		core.getInput("SRC_REPO", { required: false }) ||
 		process.env.GITHUB_REPOSITORY,
-	TARGET_REPOS: trimArray(
-		core.getInput("TARGET_REPOS", { required: true }).split("\n")
+	TARGET_REPOS: parseMultilineInput(
+		core.getInput("TARGET_REPOS", { required: true })
 	),
 	TMPDIR:
 		core.getInput("TEMP_DIR", { required: false }) ||
@@ -3679,7 +3652,8 @@ const path = __webpack_require__(622);
 const listDir = __webpack_require__(50);
 const rimraf = __webpack_require__(569);
 
-const { TMPDIR, FILE_PATTERNS, DRY_RUN } = __webpack_require__(450);
+const { TMPDIR, FILE_PATTERNS, DRY_RUN, SKIP_DELETE } = __webpack_require__(450);
+const logger = __webpack_require__(852);
 
 const getRepoPath = (repoFullname) => {
 	return path.join(TMPDIR, repoFullname);
@@ -3690,12 +3664,12 @@ const getRepoRelativeFilePath = (repoFullname, filePath) => {
 };
 
 const getMatchingFiles = (files) => {
-	console.log(FILE_PATTERNS);
+	logger.info(FILE_PATTERNS);
 	return files.filter((file) => {
 		// TODO: document behaviour that all filepaths can be matched using a single forward slash
 		cleanFile = file.replace(TMPDIR, "").replace(/\\/g, "/").replace(/^\//, "");
 		const hasMatch = FILE_PATTERNS.some((r) => r.test(cleanFile));
-		console.log("TEST", cleanFile, "FOR MATCH =>", hasMatch);
+		logger.info("TEST", cleanFile, "FOR MATCH =>", hasMatch);
 		return hasMatch;
 	});
 };
@@ -3703,14 +3677,20 @@ const getMatchingFiles = (files) => {
 const getFiles = async (repoFullname) => {
 	// TODO: evaluate if ignoring .git is a good idea
 	const files = await listDir(getRepoPath(repoFullname), [".git"]);
-	console.log("FILES:", JSON.stringify(files, undefined, 2));
+	logger.info("FILES:", JSON.stringify(files, undefined, 2));
 	const matchingFiles = getMatchingFiles(files);
-	console.log("MATCHING FILES:", JSON.stringify(matchingFiles, undefined, 2));
+	logger.info("MATCHING FILES:", JSON.stringify(matchingFiles, undefined, 2));
 	return matchingFiles;
 };
 
 const removeFiles = async (filePaths) => {
-	console.log("REMOVE FILES", filePaths);
+	if (SKIP_DELETE) {
+		logger.info(
+			"SKIP REMOVING FILES because `SKIP_DELETE` is set to `true`",
+			filePaths
+		);
+	}
+	logger.info("REMOVE FILES", filePaths);
 	if (DRY_RUN) {
 		return;
 	}
@@ -3718,7 +3698,7 @@ const removeFiles = async (filePaths) => {
 };
 
 const copyFile = async (from, to) => {
-	console.log("copy", from, "to", to);
+	logger.info("copy", from, "to", to);
 	if (DRY_RUN) {
 		return;
 	}
@@ -4274,7 +4254,6 @@ function slice (args) {
 /***/ 676:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
-const core = __webpack_require__(470);
 const path = __webpack_require__(622);
 
 const { SRC_REPO, TARGET_REPOS, TMPDIR, SKIP_CLEANUP } = __webpack_require__(450);
@@ -4394,15 +4373,16 @@ const { exec } = __webpack_require__(129);
 const porcelain = __webpack_require__(142);
 
 const {
-	GIT_PERSONAL_TOKEN,
+	GITHUB_TOKEN,
 	COMMIT_MESSAGE,
 	GIT_USERNAME,
 	GIT_EMAIL,
 } = __webpack_require__(450);
 const { getRepoPath } = __webpack_require__(543);
+const logger = __webpack_require__(852);
 
 function execCmd(command) {
-	console.log(command);
+	logger.info(command);
 	return new Promise((resolve, reject) => {
 		exec(command, function (error, stdout) {
 			error ? reject(error) : resolve(stdout.trim());
@@ -4413,7 +4393,7 @@ function execCmd(command) {
 const clone = async (repoFullname) => {
 	// TODO: allow customizing the branch
 	return execCmd(
-		`git clone --depth 1 https://${GIT_PERSONAL_TOKEN}@github.com/${repoFullname}.git ${getRepoPath(
+		`git clone --depth 1 https://${GITHUB_TOKEN}@github.com/${repoFullname}.git ${getRepoPath(
 			repoFullname
 		)}`
 	);
@@ -4421,11 +4401,11 @@ const clone = async (repoFullname) => {
 
 const commitAll = async (repoFullname) => {
 	if (porcelain().length === 0) {
-		console.log("NO CHANGES DETECTED");
+		logger.info("NO CHANGES DETECTED");
 		return;
 	}
-	console.log("CHANGES DETECTED");
-	console.log("COMMIT CHANGES...");
+	logger.info("CHANGES DETECTED");
+	logger.info("COMMIT CHANGES...");
 	if (!DRY_RUN) {
 		await execCmd(
 			[
@@ -4440,7 +4420,7 @@ const commitAll = async (repoFullname) => {
 			].join(" && ")
 		);
 	}
-	console.log("CHANGES COMMITED");
+	logger.info("CHANGES COMMITED");
 };
 
 module.exports = {
@@ -4455,6 +4435,42 @@ module.exports = {
 /***/ (function(module) {
 
 module.exports = require("fs");
+
+/***/ }),
+
+/***/ 852:
+/***/ (function(module, __unusedexports, __webpack_require__) {
+
+const core = __webpack_require__(470);
+
+const joinAttributes = (...attrs) =>
+	attrs.map((p) => JSON.stringify(p, undefined, 2)).join(" ");
+
+const info = (...attrs) => {
+	core.info(joinAttributes(...attrs));
+};
+
+const warn = (...attrs) => {
+	core.warning(joinAttributes(...attrs));
+};
+
+const error = (...attrs) => {
+	const message = joinAttributes(...attrs);
+	core.error(message);
+	core.setFailed(message);
+};
+
+const debug = (...attrs) => {
+	core.debug(joinAttributes(...attrs));
+};
+
+module.exports = {
+	debug,
+	error,
+	info,
+	warn,
+};
+
 
 /***/ }),
 

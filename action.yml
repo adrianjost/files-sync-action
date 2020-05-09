@@ -1,44 +1,49 @@
-# action.yml
-name: "Secrets Sync Action"
+name: Files Sync Action
 author: Adrian Jost
 branding:
-  icon: "copy"
-  color: "red"
-description: "Copies secrets from the action's environment to many other repos."
+  color: green
+  icon: copy
+description: Copies secrets from the action's environment to many other repos.
 inputs:
-  github_token:
-    description: "Token to use to get repos and write secrets"
-    required: true
-  repositories:
+  DRY_RUN:
     description: |
-      New line deliminated regex expressions to select repositories. Repositires
-      are limited to those in which the token user is an owner or collaborator.
-      Set `REPOSITORIES_LIST_REGEX` to `False` to use a hardcoded list of
-      repositories.
-    required: true
-  repositories_list_regex:
-    default: "true"
-    description: |
-      If this value is `true`(default), the action will find all repositories
-      available to the token user and filter based upon the regex provided. If
-      it is false, it is expected that `REPOSITORIES` will be an a new line
-      deliminated list in the form of org/name.
+      Run everything except for the copying, removing and commiting functionality.
     required: false
-  secrets:
+  FILE_PATTERNS:
     description: |
-      New line deliminated regex expressions to select values from `process.env`. 
-      Use the action env to pass secrets from the repository in which this action 
-      runs with the `env` attribute of the step.
+      New line deliminated regex expressions to select files from the source repository. All filpaths start with the repos fullname without a leading slash. The delimiter between path segments is a forward slash.
     required: true
-  dry_run:
+  GITHUB_TOKEN:
+    description: Token to use to get repos and write secrets
+    required: true
+  GIT_EMAIL:
     description: |
-      Run everything except for secret create and update functionality.
+      The e-mail address used to commit the synced files. Defaults to $GITHUB_ACTOR@users.noreply.github.com
     required: false
-  retries:
+  GIT_USERNAME:
     description: |
-      The number of retries to attempt when making Github calls.
-    default: "3"
+      The username used to commit the synced files. Defaults to $GITHUB_ACTOR
+    required: false
+  SKIP_DELETE:
+    description: |
+      Will omit all delete operations for matching files present in `TARGET_REPO` but not existant in `SRC_REPO` if set to `true`. Defaults to `false`.
+    required: false
+  SKIP_CLEANUP:
+    description: |
+      If set to true or 1, the cleanup step to remove the temporary workding directory at the end will be skipped. Usefull for debugging purposes.
+    required: false
+  SRC_REPO:
+    description: |
+      Repo from where files should be synced from. Defaults to $GITHUB_REPOSITORY.
+    required: false
+  TARGET_REPOS:
+    description: |
+      New line deliminated list of repositories where the files should be synced to. The given access token must have access to all listed repositories.
+    required: true
+  TMPDIR:
+    description: |
+      The working directory where all sync operations will be done. Defaults to `tmp-${Date.now().toString()}`
     required: false
 runs:
-  using: "node12"
-  main: "dist/index.js"
+  main: dist/index.js
+  using: node12

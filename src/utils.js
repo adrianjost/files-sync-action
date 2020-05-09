@@ -3,7 +3,8 @@ const path = require("path");
 const listDir = require("recursive-readdir");
 const rimraf = require("rimraf");
 
-const { TMPDIR, FILE_PATTERNS, DRY_RUN } = require("./context");
+const { TMPDIR, FILE_PATTERNS, DRY_RUN, SKIP_DELETE } = require("./context");
+const logger = require("./log");
 
 const getRepoPath = (repoFullname) => {
 	return path.join(TMPDIR, repoFullname);
@@ -14,12 +15,12 @@ const getRepoRelativeFilePath = (repoFullname, filePath) => {
 };
 
 const getMatchingFiles = (files) => {
-	console.log(FILE_PATTERNS);
+	logger.info(FILE_PATTERNS);
 	return files.filter((file) => {
 		// TODO: document behaviour that all filepaths can be matched using a single forward slash
 		cleanFile = file.replace(TMPDIR, "").replace(/\\/g, "/").replace(/^\//, "");
 		const hasMatch = FILE_PATTERNS.some((r) => r.test(cleanFile));
-		console.log("TEST", cleanFile, "FOR MATCH =>", hasMatch);
+		logger.info("TEST", cleanFile, "FOR MATCH =>", hasMatch);
 		return hasMatch;
 	});
 };
@@ -27,14 +28,20 @@ const getMatchingFiles = (files) => {
 const getFiles = async (repoFullname) => {
 	// TODO: evaluate if ignoring .git is a good idea
 	const files = await listDir(getRepoPath(repoFullname), [".git"]);
-	console.log("FILES:", JSON.stringify(files, undefined, 2));
+	logger.info("FILES:", JSON.stringify(files, undefined, 2));
 	const matchingFiles = getMatchingFiles(files);
-	console.log("MATCHING FILES:", JSON.stringify(matchingFiles, undefined, 2));
+	logger.info("MATCHING FILES:", JSON.stringify(matchingFiles, undefined, 2));
 	return matchingFiles;
 };
 
 const removeFiles = async (filePaths) => {
-	console.log("REMOVE FILES", filePaths);
+	if (SKIP_DELETE) {
+		logger.info(
+			"SKIP REMOVING FILES because `SKIP_DELETE` is set to `true`",
+			filePaths
+		);
+	}
+	logger.info("REMOVE FILES", filePaths);
 	if (DRY_RUN) {
 		return;
 	}
@@ -42,7 +49,7 @@ const removeFiles = async (filePaths) => {
 };
 
 const copyFile = async (from, to) => {
-	console.log("copy", from, "to", to);
+	logger.info("copy", from, "to", to);
 	if (DRY_RUN) {
 		return;
 	}

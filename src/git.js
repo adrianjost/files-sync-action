@@ -2,15 +2,16 @@ const { exec } = require("child_process");
 const porcelain = require("@putout/git-status-porcelain");
 
 const {
-	GIT_PERSONAL_TOKEN,
+	GITHUB_TOKEN,
 	COMMIT_MESSAGE,
 	GIT_USERNAME,
 	GIT_EMAIL,
 } = require("./context");
 const { getRepoPath } = require("./utils");
+const logger = require("./log");
 
 function execCmd(command) {
-	console.log(command);
+	logger.info(command);
 	return new Promise((resolve, reject) => {
 		exec(command, function (error, stdout) {
 			error ? reject(error) : resolve(stdout.trim());
@@ -21,7 +22,7 @@ function execCmd(command) {
 const clone = async (repoFullname) => {
 	// TODO: allow customizing the branch
 	return execCmd(
-		`git clone --depth 1 https://${GIT_PERSONAL_TOKEN}@github.com/${repoFullname}.git ${getRepoPath(
+		`git clone --depth 1 https://${GITHUB_TOKEN}@github.com/${repoFullname}.git ${getRepoPath(
 			repoFullname
 		)}`
 	);
@@ -29,11 +30,11 @@ const clone = async (repoFullname) => {
 
 const commitAll = async (repoFullname) => {
 	if (porcelain().length === 0) {
-		console.log("NO CHANGES DETECTED");
+		logger.info("NO CHANGES DETECTED");
 		return;
 	}
-	console.log("CHANGES DETECTED");
-	console.log("COMMIT CHANGES...");
+	logger.info("CHANGES DETECTED");
+	logger.info("COMMIT CHANGES...");
 	if (!DRY_RUN) {
 		await execCmd(
 			[
@@ -48,7 +49,7 @@ const commitAll = async (repoFullname) => {
 			].join(" && ")
 		);
 	}
-	console.log("CHANGES COMMITED");
+	logger.info("CHANGES COMMITED");
 };
 
 module.exports = {

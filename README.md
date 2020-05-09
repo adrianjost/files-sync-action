@@ -2,33 +2,55 @@
 
 ![Build](https://github.com/adrianjost/files-sync-action/workflows/Build/badge.svg) ![Release](https://github.com/adrianjost/files-sync-action/workflows/Release/badge.svg) [![codecov](https://codecov.io/gh/adrianjost/files-sync-action/branch/master/graph/badge.svg)](https://codecov.io/gh/adrianjost/files-sync-action) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
-A Github Action that can sync files from one repository to many others. This action allows a maintainer to define community health files in a single repository and have them synced to all other repositories in the Github organization or beyond. You could sync common GitHub Action Workflows, your LICENSE or any other file you can imagine. Regex is used to select the files and the repositories. Exclude is currently not supported and it is recommended to use a bot user if possible.
+A Github Action that can sync files from one repository to many others. This action allows a maintainer to define community health files in a single repository and have them synced to all other repositories in the Github organization or beyond. You could sync common GitHub Action Workflows, your LICENSE or any other file you can imagine. Regex is used to select the files. Exclude is currently not supported and it is recommended to use a bot user if possible.
 
 ## Inputs
 
-### `github_token`
+### `GITHUB_TOKEN`
 
 **Required** Token to use to get repos and write secrets. `${{secrets.GITHUB_TOKEN}}` will **not** work.
 
-### `repositories`
+### `SRC_REPO`
 
-**Required** New line deliminated regex expressions to select repositories. Repositires are limited to those in whcich the token user is an owner or collaborator. Set `repositories_list_regex` to `False` to use a hardcoded list of repositories.
+Source of truth for all files to sync. If files get added, modified or deleted here, those changes will be synced to all TARGET_REPOS. Defaults to the workflows repository (`$GITHUB_REPOSITORY`)
 
-### `repositories_list_regex`
+### `TARGET_REPOS`
 
-If this value is `true` (default), the action will find all repositories available to the token user and filter based upon the regex provided. If it is false, it is expected that `repositories` will be an a new line deliminated list in the form of org/name.
+**Required** New line deliminated list of repositories. Repositires are limited to those in which the token user is an owner or collaborator.
 
-### `secrets`
+### `FILE_PATTERNS`
 
-**Required** New line deliminated regex expressions to select values from `process.env`. Use the action env to pass secrets from the repository in which this action runs with the `env` attribute of the step.
+**Required** New line deliminated regex expressions to select files from the source repository. All matching files in the target repository will be
 
-### `retries`
+1. deleted if not present in the `SRC_REPO`, and `SKIP_DELETE` is `false`
+2. overwritten from the `SRC_REPO` if they already exist in the `TARGET_REPO`
+3. created in the `TARGET_REPO`, if they do not exist yet there.
 
-The number of retries to attempt when making Github calls when triggering rate limits or abuse limits. Defaults to 3.
+All filpaths start with the repos fullname without a leading slash. The delimiter between path segments is a forward slash.
 
-### `dry_run`
+### `SKIP_DELETE`
 
-Run everything except for secret create and update functionality.
+Will omit all delete operations for matching files present in `TARGET_REPO` but not existant in `SRC_REPO` if set to `true`. Defaults to `false`.
+
+### `TEMP_DIR`
+
+The working directory where all sync operations will be done. Defaults to `tmp-${Date.now().toString()}`
+
+### `SKIP_CLEANUP`
+
+If set to true or 1, the cleanup step to remove the temporary workding directory at the end will be skipped. Usefull for debugging purposes. Defaults to `false`.
+
+### `GIT_EMAIL`
+
+The e-mail address used to commit the synced files. Defaults to `${process.env.GITHUB_ACTOR}@users.noreply.github.com`.
+
+### `GIT_USERNAME`
+
+The username used to commit the synced files. Defaults to `process.env.GITHUB_ACTOR`.
+
+### `DRY_RUN`
+
+Run everything except for secret create and update functionality. Defaults to `false`.
 
 ## Usage
 

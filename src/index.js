@@ -1,4 +1,3 @@
-const core = require("@actions/core");
 const path = require("path");
 
 const { SRC_REPO, TARGET_REPOS, TMPDIR, SKIP_CLEANUP } = require("./context");

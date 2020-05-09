@@ -1,9 +1,10 @@
 module.exports = {
 	extends: ["prettier"],
-	plugins: ["prettier"],
+	plugins: ["prettier", "sort-keys-fix"],
 	rules: {
+		"no-unused-vars": ["error"],
 		"prettier/prettier": ["error"],
-		"sort-keys": ["error"],
+		"sort-keys-fix/sort-keys-fix": ["error"],
 	},
 	parserOptions: {
 		ecmaVersion: 2017,
