@@ -1,5 +1,7 @@
 const core = require("@actions/core");
 
+const logger = require("./log");
+
 // TODO: check that all required envs are defined
 
 // TODO: check that tmp directory does not exist already
@@ -11,6 +13,16 @@ const core = require("@actions/core");
 const parseMultilineInput = (multilineInput) => {
 	return multilineInput.split("\n").map((e) => e.trim());
 };
+
+logger.info("INPUT FILE_PATTERNS", core.getInput("FILE_PATTERNS"));
+logger.info(
+	"PARSED FILE_PATTERNS",
+	parseMultilineInput(core.getInput("FILE_PATTERNS"))
+);
+logger.info(
+	"REGEXP FILE_PATTERNS",
+	parseMultilineInput(core.getInput("FILE_PATTERNS")).map((s) => new RegExp(s))
+);
 
 module.exports = {
 	get COMMIT_MESSAGE() {
