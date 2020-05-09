@@ -4435,10 +4435,10 @@ const commitAll = async (repoFullname) => {
 			[
 				`git config --local user.name "${GIT_USERNAME}"`,
 				`git config --local user.email "${GIT_EMAIL}"`,
-				// TODO: improve commit message to contain more details about the changes
-				// TODO: allow customization of COMMIT_MESSAGE
 				`git add -A`,
 				`git status`,
+				// TODO: improve commit message to contain more details about the changes
+				// TODO: allow customization of COMMIT_MESSAGE
 				`git commit --message "${COMMIT_MESSAGE}"`,
 				`git push`,
 			].join(" && "),
