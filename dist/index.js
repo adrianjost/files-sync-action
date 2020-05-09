@@ -3664,7 +3664,7 @@ const getRepoRelativeFilePath = (repoFullname, filePath) => {
 };
 
 const getMatchingFiles = (repoFullname, files) => {
-	logger.info(FILE_PATTERNS);
+	logger.info("FILE_PATTERNS", FILE_PATTERNS);
 	return files.filter((file) => {
 		cleanFile = file
 			.replace(/\\/g, "/")
@@ -4446,7 +4446,9 @@ module.exports = require("fs");
 const core = __webpack_require__(470);
 
 const joinAttributes = (...attrs) =>
-	attrs.map((p) => JSON.stringify(p, undefined, 2)).join(" ");
+	attrs
+		.map((p) => (typeof p === "object" ? JSON.stringify(p, undefined, 2) : p))
+		.join(" ");
 
 const info = (...attrs) => {
 	core.info(joinAttributes(...attrs));

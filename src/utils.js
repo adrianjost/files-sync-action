@@ -15,7 +15,7 @@ const getRepoRelativeFilePath = (repoFullname, filePath) => {
 };
 
 const getMatchingFiles = (repoFullname, files) => {
-	logger.info(FILE_PATTERNS);
+	logger.info("FILE_PATTERNS", FILE_PATTERNS);
 	return files.filter((file) => {
 		cleanFile = file
 			.replace(/\\/g, "/")

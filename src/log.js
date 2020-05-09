@@ -1,7 +1,9 @@
 const core = require("@actions/core");
 
 const joinAttributes = (...attrs) =>
-	attrs.map((p) => JSON.stringify(p, undefined, 2)).join(" ");
+	attrs
+		.map((p) => (typeof p === "object" ? JSON.stringify(p, undefined, 2) : p))
+		.join(" ");
 
 const info = (...attrs) => {
 	core.info(joinAttributes(...attrs));
