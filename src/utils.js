@@ -31,7 +31,7 @@ const getMatchingFiles = (repoFullname, files) => {
 };
 
 const getFiles = async (repoFullname) => {
-	// TODO [$5eb6b95ae4315b0007b33cd5]: evaluate if ignoring .git is a good idea
+	// TODO [#19]: evaluate if ignoring .git is a good idea
 	const files = await listDir(getRepoPath(repoFullname), [".git"]);
 	logger.info("FILES:", JSON.stringify(files, undefined, 2));
 	const matchingFiles = getMatchingFiles(repoFullname, files);
@@ -54,7 +54,7 @@ const removeFiles = async (filePaths) => {
 };
 
 const copyFile = async (from, to) => {
-	// TODO [$5eb6b95ae4315b0007b33cd6]: add option to skip replacement of files
+	// TODO [#20]: add option to skip replacement of files
 	logger.info("copy", from, "to", to);
 	if (DRY_RUN) {
 		return;

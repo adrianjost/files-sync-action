@@ -28,7 +28,7 @@ function execCmd(command, workingDir) {
 }
 
 const clone = async (repoFullname) => {
-	// TODO [$5eb6b95ae4315b0007b33cd2]: allow customizing the branch
+	// TODO [#16]: allow customizing the branch
 	return execCmd(
 		`git clone --depth 1 https://${GITHUB_TOKEN}@github.com/${repoFullname}.git ${getRepoPath(
 			repoFullname
@@ -58,8 +58,8 @@ const commitAll = async (repoFullname) => {
 				`git config --local user.email "${GIT_EMAIL}"`,
 				`git add -A`,
 				`git status`,
-				// TODO [$5eb6b95ae4315b0007b33cd3]: improve commit message to contain more details about the changes
-				// TODO [$5eb6b95ae4315b0007b33cd4]: allow customization of COMMIT_MESSAGE
+				// TODO [#17]: improve commit message to contain more details about the changes
+				// TODO [#18]: allow customization of COMMIT_MESSAGE
 				`git commit --message "${COMMIT_MESSAGE}"`,
 				`git push`,
 			].join(" && "),

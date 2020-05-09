@@ -706,7 +706,7 @@ function parse (pattern, isSub) {
           // an invalid re. if so, re-walk the contents of the
           // would-be class to re-translate any characters that
           // were passed through as-is
-          // TODO [$5eb6b95ae4315b0007b33cc3]: It would probably be faster to determine this
+          // TODO [#1]: It would probably be faster to determine this
           // without a try/catch and a new RegExp, but it's tricky
           // to do safely.  For now, this is safe and works.
           var cs = pattern.substring(classStart + 1, i)
@@ -3368,14 +3368,14 @@ const core = __webpack_require__(470);
 
 const logger = __webpack_require__(852);
 
-// TODO [$5eb6b95ae4315b0007b33cc4]: check that all required envs are defined
+// TODO [#2]: check that all required envs are defined
 
-// TODO [$5eb6b95ae4315b0007b33cc5]: check that tmp directory does not exist already
+// TODO [#3]: check that tmp directory does not exist already
 // shuffle name or clean directory
 
-// TODO [$5eb6b95ae4315b0007b33cc6]: validate that SRC_REPO is not in TARGET_REPOS
+// TODO [#4]: validate that SRC_REPO is not in TARGET_REPOS
 
-// TODO [$5eb6b95ae4315b0007b33cc7]: add JSDoc comment
+// TODO [#5]: add JSDoc comment
 const parseMultilineInput = (multilineInput) => {
 	return multilineInput.split("\n").map((e) => e.trim());
 };
@@ -3682,7 +3682,7 @@ const getMatchingFiles = (repoFullname, files) => {
 };
 
 const getFiles = async (repoFullname) => {
-	// TODO [$5eb6b95ae4315b0007b33cc8]: evaluate if ignoring .git is a good idea
+	// TODO [#6]: evaluate if ignoring .git is a good idea
 	const files = await listDir(getRepoPath(repoFullname), [".git"]);
 	logger.info("FILES:", JSON.stringify(files, undefined, 2));
 	const matchingFiles = getMatchingFiles(repoFullname, files);
@@ -3705,7 +3705,7 @@ const removeFiles = async (filePaths) => {
 };
 
 const copyFile = async (from, to) => {
-	// TODO [$5eb6b95ae4315b0007b33cc9]: add option to skip replacement of files
+	// TODO [#7]: add option to skip replacement of files
 	logger.info("copy", from, "to", to);
 	if (DRY_RUN) {
 		return;
@@ -4407,7 +4407,7 @@ function execCmd(command, workingDir) {
 }
 
 const clone = async (repoFullname) => {
-	// TODO [$5eb6b95ae4315b0007b33cca]: allow customizing the branch
+	// TODO [#8]: allow customizing the branch
 	return execCmd(
 		`git clone --depth 1 https://${GITHUB_TOKEN}@github.com/${repoFullname}.git ${getRepoPath(
 			repoFullname
@@ -4437,8 +4437,8 @@ const commitAll = async (repoFullname) => {
 				`git config --local user.email "${GIT_EMAIL}"`,
 				`git add -A`,
 				`git status`,
-				// TODO [$5eb6b95ae4315b0007b33ccb]: improve commit message to contain more details about the changes
-				// TODO [$5eb6b95ae4315b0007b33ccc]: allow customization of COMMIT_MESSAGE
+				// TODO [#9]: improve commit message to contain more details about the changes
+				// TODO [#10]: allow customization of COMMIT_MESSAGE
 				`git commit --message "${COMMIT_MESSAGE}"`,
 				`git push`,
 			].join(" && "),
@@ -4617,7 +4617,7 @@ function setopts (self, pattern, options) {
   if (process.platform === "win32")
     self.root = self.root.replace(/\\/g, "/")
 
-  // TODO [$5eb6b95ae4315b0007b33ccd]: is an absolute `cwd` supposed to be resolved against `root`?
+  // TODO [#11]: is an absolute `cwd` supposed to be resolved against `root`?
   // e.g. { cwd: '/test', root: __dirname } === path.join(__dirname, '/test')
   self.cwdAbs = isAbsolute(self.cwd) ? self.cwd : makeAbs(self, self.cwd)
   if (process.platform === "win32")
