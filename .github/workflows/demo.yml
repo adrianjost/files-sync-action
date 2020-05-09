@@ -1,0 +1,19 @@
+name: Demo
+"on":
+  schedule:
+    - cron: "0 3 * * *"
+  push:
+    branches:
+      - master
+jobs:
+  file-sync:
+    name: File Sync
+    runs-on: ubuntu-latest
+    uses: adrianjost/files-sync-action@master
+    with:
+      FILE_PATTERNS: |
+        ^README.md$
+        ^.github/workflows/sync-.*
+      TARGET_REPOS: |
+        adrianjost/files-sync-target
+      GITHUB_TOKEN: ${{ secrets.SYNCED_GITHUB_TOKEN }}

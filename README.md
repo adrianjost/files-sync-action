@@ -62,7 +62,7 @@ uses: adrianjost/files-sync-action
       ^.github/workflows/sync-.*
     TARGET_REPOS: |
       adrianjost/files-sync-target
-      adrianjost/vue-filter-ui
+      any/other-repo
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_FILES }}
 ```
 
