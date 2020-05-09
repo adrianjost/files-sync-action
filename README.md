@@ -55,7 +55,7 @@ Run everything except for secret create and update functionality. Defaults to `f
 ## Usage
 
 ```yaml
-uses: adrianjost/files-sync-action
+uses: adrianjost/files-sync-action@master
   with:
     FILE_PATTERNS: |
       ^LICENSE$
