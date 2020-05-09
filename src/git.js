@@ -52,7 +52,7 @@ const commitAll = async (repoFullname) => {
 	logger.info("CHANGES DETECTED");
 	logger.info("COMMIT CHANGES...");
 	if (!DRY_RUN) {
-		await execCmd(
+		const output = await execCmd(
 			[
 				`git config --local user.name "${GIT_USERNAME}"`,
 				`git config --local user.email "${GIT_EMAIL}"`,
@@ -65,6 +65,9 @@ const commitAll = async (repoFullname) => {
 			].join(" && "),
 			getRepoPath(repoFullname)
 		);
+		if (!output.includes("Update file(s) from")) {
+			throw new Error("failed to commit changes");
+		}
 	}
 	logger.info("CHANGES COMMITED");
 };

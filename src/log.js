@@ -21,7 +21,7 @@ const warn = (...attrs) => {
 const error = (...attrs) => {
 	const message = joinAttributes(...attrs);
 	core.error(message);
-	core.setFailed(message);
+	core.setFailed(`Action failed with error ${message}`);
 };
 
 const debug = (...attrs) => {
