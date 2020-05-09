@@ -12,7 +12,7 @@ const { getRepoPath } = require("./utils");
 const logger = require("./log");
 
 function execCmd(command, workingDir) {
-	logger.info("EXEC", command);
+	logger.info("EXEC", command, "IN", workingDir);
 	return new Promise((resolve, reject) => {
 		exec(
 			command,
@@ -20,7 +20,7 @@ function execCmd(command, workingDir) {
 				cwd: workingDir,
 			},
 			function (error, stdout) {
-				logger.info(command, "OUTPUT", error, stdout);
+				logger.info(command, "IN", workingDir, "OUTPUT:\n", error, stdout);
 				error ? reject(error) : resolve(stdout.trim());
 			}
 		);
