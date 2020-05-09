@@ -4425,11 +4425,11 @@ const hasChanges = async (repoFullname) => {
 
 const commitAll = async (repoFullname) => {
 	if (!(await hasChanges(repoFullname))) {
-		logger.info("NO CHANGES DETECTED");
+		logger.info(repoFullname, "- NO CHANGES DETECTED");
 		return;
 	}
-	logger.info("CHANGES DETECTED");
-	logger.info("COMMIT CHANGES...");
+	logger.info(repoFullname, "- CHANGES DETECTED");
+	logger.info(repoFullname, "- COMMIT CHANGES...");
 	if (!DRY_RUN) {
 		const output = await execCmd(
 			[
@@ -4448,7 +4448,7 @@ const commitAll = async (repoFullname) => {
 			throw new Error("failed to commit changes");
 		}
 	}
-	logger.info("CHANGES COMMITED");
+	logger.info(repoFullname, "- CHANGES COMMITED");
 };
 
 module.exports = {
