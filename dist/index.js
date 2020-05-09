@@ -4438,6 +4438,7 @@ const commitAll = async (repoFullname) => {
 				// TODO: improve commit message to contain more details about the changes
 				// TODO: allow customization of COMMIT_MESSAGE
 				`git add -A`,
+				`git status`,
 				`git commit --message "${COMMIT_MESSAGE}"`,
 				`git push`,
 			].join(" && "),
