@@ -1,5 +1,5 @@
 const { exec } = require("child_process");
-const porcelain = require("@putout/git-status-porcelain");
+const { parse: porcelainParse } = require("@putout/git-status-porcelain");
 
 const {
 	GITHUB_TOKEN,
@@ -28,16 +28,17 @@ const clone = async (repoFullname) => {
 	);
 };
 
+const hasChanges = async (repoFullname) => {
+	const statusOutput = await execCmd(
+		[`cd ${getRepoPath(repoFullname)}`, `git status --porcelain`].join(" && ")
+	);
+	console.log("statusOutput", statusOutput);
+	console.log("parsed statusOutput", porcelainParse(statusOutput));
+	return porcelainParse(statusOutput).length !== 0;
+};
+
 const commitAll = async (repoFullname) => {
-	if (
-		porcelain({
-			added: true,
-			deleted: true,
-			modified: true,
-			renamed: true,
-			untracked: true,
-		}).length === 0
-	) {
+	if (!hasChanges(repoFullname)) {
 		logger.info("NO CHANGES DETECTED");
 		return;
 	}

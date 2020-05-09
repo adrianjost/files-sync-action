@@ -4384,7 +4384,7 @@ try {
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
 const { exec } = __webpack_require__(129);
-const porcelain = __webpack_require__(142);
+const { parse: porcelainParse } = __webpack_require__(142);
 
 const {
 	GITHUB_TOKEN,
@@ -4413,16 +4413,17 @@ const clone = async (repoFullname) => {
 	);
 };
 
+const hasChanges = async (repoFullname) => {
+	const statusOutput = await execCmd(
+		[`cd ${getRepoPath(repoFullname)}`, `git status --porcelain`].join(" && ")
+	);
+	console.log("statusOutput", statusOutput);
+	console.log("parsed statusOutput", porcelainParse(statusOutput));
+	return porcelainParse(statusOutput).length !== 0;
+};
+
 const commitAll = async (repoFullname) => {
-	if (
-		porcelain({
-			added: true,
-			deleted: true,
-			modified: true,
-			renamed: true,
-			untracked: true,
-		}).length === 0
-	) {
+	if (!hasChanges(repoFullname)) {
 		logger.info("NO CHANGES DETECTED");
 		return;
 	}
