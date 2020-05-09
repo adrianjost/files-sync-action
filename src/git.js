@@ -11,12 +11,19 @@ const {
 const { getRepoPath } = require("./utils");
 const logger = require("./log");
 
-function execCmd(command) {
-	logger.info(command);
+function execCmd(command, workingDir) {
+	logger.info("EXEC", command);
 	return new Promise((resolve, reject) => {
-		exec(command, function (error, stdout) {
-			error ? reject(error) : resolve(stdout.trim());
-		});
+		exec(
+			command,
+			{
+				cwd: workingDir,
+			},
+			function (error, stdout) {
+				logger.info(command, "OUTPUT", error, stdout);
+				error ? reject(error) : resolve(stdout.trim());
+			}
+		);
 	});
 }
 
@@ -31,10 +38,9 @@ const clone = async (repoFullname) => {
 
 const hasChanges = async (repoFullname) => {
 	const statusOutput = await execCmd(
-		[`cd ${getRepoPath(repoFullname)}`, `git status --porcelain`].join(" && ")
+		`git status --porcelain`,
+		getRepoPath(repoFullname)
 	);
-	console.log("statusOutput", statusOutput);
-	console.log("parsed statusOutput", porcelainParse(statusOutput));
 	return porcelainParse(statusOutput).length !== 0;
 };
 
@@ -48,15 +54,15 @@ const commitAll = async (repoFullname) => {
 	if (!DRY_RUN) {
 		await execCmd(
 			[
-				`cd ${getRepoPath(repoFullname)}`,
 				`git config --local user.name "${GIT_USERNAME}"`,
 				`git config --local user.email "${GIT_EMAIL}"`,
-				`git status`,
 				// TODO: improve commit message to contain more details about the changes
 				// TODO: allow customization of COMMIT_MESSAGE
+				`git add -A`,
 				`git commit --message "${COMMIT_MESSAGE}"`,
 				`git push`,
-			].join(" && ")
+			].join(" && "),
+			getRepoPath(repoFullname)
 		);
 	}
 	logger.info("CHANGES COMMITED");

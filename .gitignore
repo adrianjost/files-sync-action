@@ -54,4 +54,4 @@ Thumbs.db
 __tests__/runner/*
 lib/**/*
 
-envs.js
+test.js

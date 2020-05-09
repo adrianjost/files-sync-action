@@ -14,16 +14,6 @@ const parseMultilineInput = (multilineInput) => {
 	return multilineInput.split("\n").map((e) => e.trim());
 };
 
-logger.info("INPUT FILE_PATTERNS", core.getInput("FILE_PATTERNS"));
-logger.info(
-	"PARSED FILE_PATTERNS",
-	parseMultilineInput(core.getInput("FILE_PATTERNS"))
-);
-logger.info(
-	"REGEXP FILE_PATTERNS",
-	parseMultilineInput(core.getInput("FILE_PATTERNS")).map((s) => new RegExp(s))
-);
-
 module.exports = {
 	get COMMIT_MESSAGE() {
 		return `Update file(s) from \"${this.SRC_REPO}\"`;
