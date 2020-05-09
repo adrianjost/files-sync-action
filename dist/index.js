@@ -3663,11 +3663,13 @@ const getRepoRelativeFilePath = (repoFullname, filePath) => {
 	return path.relative(getRepoPath(repoFullname), filePath);
 };
 
-const getMatchingFiles = (files) => {
+const getMatchingFiles = (repoFullname, files) => {
 	logger.info(FILE_PATTERNS);
 	return files.filter((file) => {
-		// TODO: document behaviour that all filepaths can be matched using a single forward slash
-		cleanFile = file.replace(TMPDIR, "").replace(/\\/g, "/").replace(/^\//, "");
+		cleanFile = file
+			.replace(/\\/g, "/")
+			.replace(/^\//, "")
+			.replace(new RegExp(`^${TMPDIR}/${repoFullname}/`), "");
 		const hasMatch = FILE_PATTERNS.some((r) => r.test(cleanFile));
 		logger.info("TEST", cleanFile, "FOR MATCH =>", hasMatch);
 		return hasMatch;
@@ -3678,7 +3680,7 @@ const getFiles = async (repoFullname) => {
 	// TODO: evaluate if ignoring .git is a good idea
 	const files = await listDir(getRepoPath(repoFullname), [".git"]);
 	logger.info("FILES:", JSON.stringify(files, undefined, 2));
-	const matchingFiles = getMatchingFiles(files);
+	const matchingFiles = getMatchingFiles(repoFullname, files);
 	logger.info("MATCHING FILES:", JSON.stringify(matchingFiles, undefined, 2));
 	return matchingFiles;
 };

@@ -26,7 +26,7 @@ Source of truth for all files to sync. If files get added, modified or deleted h
 2. overwritten from the `SRC_REPO` if they already exist in the `TARGET_REPO`
 3. created in the `TARGET_REPO`, if they do not exist yet there.
 
-All filpaths start with the repos fullname without a leading slash. The delimiter between path segments is a forward slash.
+All filpaths start at the repository root without a leading slash. The delimiter between path segments is always a forward slash.
 
 ### `SKIP_DELETE`
 
@@ -57,16 +57,17 @@ Run everything except for secret create and update functionality. Defaults to `f
 ```yaml
 uses: adrianjost/files-sync-action
   with:
-    FILES: |
-      ^FOO$
-      ^GITHUB_.*
-    REPOSITORIES: |
-      ${{github.repository}}
-    DRY_RUN: true
+    FILE_PATTERNS: |
+      ^LICENSE$
+      ^.github/workflows/sync-.*
+    TARGET_REPOS: |
+      adrianjost/files-sync-target
+      adrianjost/vue-filter-ui
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_FILES }}
-  env:
-    FOO: ${{github.run_id}}
-    FOOBAR: BAZ
 ```
 
-See the workflows in this repository for another example.
+See the workflows in [this repository](https://github.com/adrianjost/.github) for another example.
+
+## Planned Features
+
+- [ ] Allow RegExp for repo selection just like in [google/secrets-sync-action](https://github.com/google/secrets-sync-action) allows it.
