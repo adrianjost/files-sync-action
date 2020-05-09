@@ -2,7 +2,11 @@ const core = require("@actions/core");
 
 const joinAttributes = (...attrs) =>
 	attrs
-		.map((p) => (typeof p === "object" ? JSON.stringify(p, undefined, 2) : p))
+		.map((p) =>
+			Array.isArray(p) || Object.keys(p).length
+				? JSON.stringify(p, undefined, 2)
+				: p
+		)
 		.join(" ");
 
 const info = (...attrs) => {
