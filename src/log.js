@@ -3,7 +3,8 @@ const core = require("@actions/core");
 const joinAttributes = (...attrs) =>
 	attrs
 		.map((p) =>
-			Array.isArray(p) || Object.keys(p).length
+			Array.isArray(p) ||
+			Object.prototype.toString.call(p) === "[object Object]"
 				? JSON.stringify(p, undefined, 2)
 				: p
 		)

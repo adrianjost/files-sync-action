@@ -4391,6 +4391,7 @@ const {
 	COMMIT_MESSAGE,
 	GIT_USERNAME,
 	GIT_EMAIL,
+	DRY_RUN,
 } = __webpack_require__(450);
 const { getRepoPath } = __webpack_require__(543);
 const logger = __webpack_require__(852);
@@ -4469,7 +4470,8 @@ const core = __webpack_require__(470);
 const joinAttributes = (...attrs) =>
 	attrs
 		.map((p) =>
-			Array.isArray(p) || Object.keys(p).length
+			Array.isArray(p) ||
+			Object.prototype.toString.call(p) === "[object Object]"
 				? JSON.stringify(p, undefined, 2)
 				: p
 		)

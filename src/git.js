@@ -6,6 +6,7 @@ const {
 	COMMIT_MESSAGE,
 	GIT_USERNAME,
 	GIT_EMAIL,
+	DRY_RUN,
 } = require("./context");
 const { getRepoPath } = require("./utils");
 const logger = require("./log");
