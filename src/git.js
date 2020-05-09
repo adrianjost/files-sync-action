@@ -45,7 +45,7 @@ const hasChanges = async (repoFullname) => {
 };
 
 const commitAll = async (repoFullname) => {
-	if (!hasChanges(repoFullname)) {
+	if (!(await hasChanges(repoFullname))) {
 		logger.info("NO CHANGES DETECTED");
 		return;
 	}
