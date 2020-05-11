@@ -1,7 +1,5 @@
 const core = require("@actions/core");
 
-const logger = require("./log");
-
 // TODO [#12]: check that all required envs are defined
 
 // TODO [#13]: check that tmp directory does not exist already

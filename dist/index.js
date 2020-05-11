@@ -706,7 +706,7 @@ function parse (pattern, isSub) {
           // an invalid re. if so, re-walk the contents of the
           // would-be class to re-translate any characters that
           // were passed through as-is
-          // TODO [#1]: It would probably be faster to determine this
+          // TODO: It would probably be faster to determine this
           // without a try/catch and a new RegExp, but it's tricky
           // to do safely.  For now, this is safe and works.
           var cs = pattern.substring(classStart + 1, i)
@@ -3366,16 +3366,14 @@ function escapeProperty(s) {
 
 const core = __webpack_require__(470);
 
-const logger = __webpack_require__(852);
+// TODO [#12]: check that all required envs are defined
 
-// TODO [#2]: check that all required envs are defined
-
-// TODO [#3]: check that tmp directory does not exist already
+// TODO [#13]: check that tmp directory does not exist already
 // shuffle name or clean directory
 
-// TODO [#4]: validate that SRC_REPO is not in TARGET_REPOS
+// TODO [#14]: validate that SRC_REPO is not in TARGET_REPOS
 
-// TODO [#5]: add JSDoc comment
+// TODO [#15]: add JSDoc comment
 const parseMultilineInput = (multilineInput) => {
 	return multilineInput.split("\n").map((e) => e.trim());
 };
@@ -3649,69 +3647,93 @@ exports.getState = getState;
 /***/ 543:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
-const fs = __webpack_require__(747);
+const fs = __webpack_require__(747).promises;
 const path = __webpack_require__(622);
 const listDir = __webpack_require__(50);
 const rimraf = __webpack_require__(569);
 
 const { TMPDIR, FILE_PATTERNS, DRY_RUN, SKIP_DELETE } = __webpack_require__(450);
-const logger = __webpack_require__(852);
 
-const getRepoPath = (repoFullname) => {
-	return path.join(TMPDIR, repoFullname);
-};
+const init = (repoFullname) => {
+	const logger = __webpack_require__(852)(repoFullname);
 
-const getRepoRelativeFilePath = (repoFullname, filePath) => {
-	return path.relative(getRepoPath(repoFullname), filePath);
-};
+	const getRepoPath = () => {
+		return path.join(TMPDIR, repoFullname);
+	};
 
-const getMatchingFiles = (repoFullname, files) => {
-	logger.info(
-		"FILE_PATTERNS",
-		FILE_PATTERNS.map((a) => a.toString())
-	);
-	return files.filter((file) => {
-		cleanFile = file
+	const getRepoRelativeFilePath = (filePath) => {
+		return path.relative(getRepoPath(), filePath);
+	};
+
+	const getPrettyPath = (file) =>
+		file
 			.replace(/\\/g, "/")
 			.replace(/^\//, "")
 			.replace(new RegExp(`^${TMPDIR}/${repoFullname}/`), "");
-		const hasMatch = FILE_PATTERNS.some((r) => r.test(cleanFile));
-		logger.info("TEST", cleanFile, "FOR MATCH =>", hasMatch);
-		return hasMatch;
-	});
-};
 
-const getFiles = async (repoFullname) => {
-	// TODO [#6]: evaluate if ignoring .git is a good idea
-	const files = await listDir(getRepoPath(repoFullname), [".git"]);
-	logger.info("FILES:", JSON.stringify(files, undefined, 2));
-	const matchingFiles = getMatchingFiles(repoFullname, files);
-	logger.info("MATCHING FILES:", JSON.stringify(matchingFiles, undefined, 2));
-	return matchingFiles;
-};
-
-const removeFiles = async (filePaths) => {
-	if (SKIP_DELETE) {
+	const getMatchingFiles = (files) => {
 		logger.info(
-			"SKIP REMOVING FILES because `SKIP_DELETE` is set to `true`",
-			filePaths
+			"FILE_PATTERNS",
+			FILE_PATTERNS.map((a) => a.toString())
 		);
-	}
-	logger.info("REMOVE FILES", filePaths);
-	if (DRY_RUN) {
-		return;
-	}
-	return Promise.all(filePaths.map((file) => fs.promises.unlink(file)));
-};
+		return files.filter((file) => {
+			cleanFile = getPrettyPath(file);
+			const hasMatch = FILE_PATTERNS.some((r) => r.test(cleanFile));
+			return hasMatch;
+		});
+	};
 
-const copyFile = async (from, to) => {
-	// TODO [#7]: add option to skip replacement of files
-	logger.info("copy", from, "to", to);
-	if (DRY_RUN) {
-		return;
-	}
-	await fs.promises.mkdir(path.dirname(to), { recursive: true });
-	await fs.promises.copyFile(from, to);
+	const getFiles = async () => {
+		// TODO [#19]: evaluate if ignoring .git is a good idea
+		const files = await listDir(getRepoPath(), [".git"]);
+		logger.debug(
+			"FILES:",
+			JSON.stringify(files.map(getPrettyPath), undefined, 2)
+		);
+		const matchingFiles = getMatchingFiles(files);
+		logger.info(
+			"MATCHING FILES:",
+			JSON.stringify(matchingFiles.map(getPrettyPath), undefined, 2)
+		);
+		return matchingFiles;
+	};
+
+	const copyFile = async (from, to) => {
+		// TODO [#20]: add option to skip replacement of files
+		logger.info(
+			"copy",
+			from.replace(/\\/g, "/").replace(/^\//, ""),
+			"to",
+			to.replace(/\\/g, "/").replace(/^\//, "")
+		);
+		if (DRY_RUN) {
+			return;
+		}
+		await fs.mkdir(path.dirname(to), { recursive: true });
+		await fs.copyFile(from, to);
+	};
+
+	const removeFiles = async (filePaths) => {
+		if (SKIP_DELETE) {
+			logger.info(
+				"SKIP REMOVING FILES because `SKIP_DELETE` is set to `true`",
+				filePaths.map((f) => `"${f}"`).join(", ")
+			);
+		}
+		logger.info("REMOVE FILES", filePaths);
+		if (DRY_RUN) {
+			return;
+		}
+		return Promise.all(filePaths.map((file) => fs.unlink(file)));
+	};
+
+	return {
+		copyFile,
+		getFiles,
+		getRepoPath,
+		getRepoRelativeFilePath,
+		removeFiles,
+	};
 };
 
 const removeDir = async (dir) => {
@@ -3732,12 +3754,8 @@ const removeDir = async (dir) => {
 };
 
 module.exports = {
-	copyFile,
-	getFiles,
-	getRepoPath,
-	getRepoRelativeFilePath,
+	init,
 	removeDir,
-	removeFiles,
 };
 
 
@@ -4266,57 +4284,67 @@ const path = __webpack_require__(622);
 
 const { SRC_REPO, TARGET_REPOS, TMPDIR, SKIP_CLEANUP } = __webpack_require__(450);
 const git = __webpack_require__(718);
-const {
-	getFiles,
-	getRepoPath,
-	getRepoRelativeFilePath,
-	removeFiles,
-	copyFile,
-	removeDir,
-} = __webpack_require__(543);
+const { removeDir } = __webpack_require__(543);
+
+const showLogs = __webpack_require__(852)().print;
 
 const main = async () => {
 	let error;
 	try {
 		// PREPARE SRC
-		await git.clone(SRC_REPO);
-		const srcFiles = await getFiles(SRC_REPO);
+		const gitSrc = git.init(SRC_REPO);
+		const utilsSrc = __webpack_require__(543).init(SRC_REPO);
+
+		await gitSrc.clone();
+		const srcFiles = await utilsSrc.getFiles();
 		const relativeSrcFiles = srcFiles.map((file) =>
-			getRepoRelativeFilePath(SRC_REPO, file)
+			utilsSrc.getRepoRelativeFilePath(file)
 		);
+		showLogs(SRC_REPO);
+
+		await new Promise((resolve) => setTimeout(resolve, 5000));
 
 		// EXEC IN TARGET REPOS
 		await Promise.all(
 			TARGET_REPOS.map(async (repo) => {
+				const utilsRepo = __webpack_require__(543).init(repo);
+				const gitRepo = git.init(repo);
+
 				// PREPARE TARGET
-				await git.clone(repo);
-				const targetFiles = await getFiles(repo);
+				await gitRepo.clone();
+				const targetFiles = await utilsRepo.getFiles();
 				const removedFiles = targetFiles.filter(
 					(file) =>
-						!relativeSrcFiles.includes(getRepoRelativeFilePath(repo, file))
+						!relativeSrcFiles.includes(utilsRepo.getRepoRelativeFilePath(file))
 				);
 
 				// UPDATE FILES
 				await Promise.all([
-					removeFiles(removedFiles),
+					utilsRepo.removeFiles(removedFiles),
 					srcFiles.map(async (srcFile) =>
-						copyFile(
+						utilsRepo.copyFile(
 							srcFile,
 							path.join(
-								getRepoPath(repo),
-								getRepoRelativeFilePath(SRC_REPO, srcFile)
+								utilsRepo.getRepoPath(),
+								utilsSrc.getRepoRelativeFilePath(srcFile)
 							)
 						)
 					),
 				]);
 
 				// COMMIT UPDATES
-				await git.commitAll(repo);
+				await gitRepo.commitAll();
+
+				showLogs(repo);
 			})
 		);
 	} catch (err) {
 		error = err;
 	}
+
+	// Output all Logs
+	__webpack_require__(852)().print();
+
 	if (!SKIP_CLEANUP) {
 		await removeDir(TMPDIR);
 	}
@@ -4387,73 +4415,79 @@ const {
 	GIT_EMAIL,
 	DRY_RUN,
 } = __webpack_require__(450);
-const { getRepoPath } = __webpack_require__(543);
-const logger = __webpack_require__(852);
-
-function execCmd(command, workingDir) {
-	logger.info("EXEC", command, "IN", workingDir);
-	return new Promise((resolve, reject) => {
-		exec(
-			command,
-			{
-				cwd: workingDir,
-			},
-			function (error, stdout) {
-				logger.info(command, "IN", workingDir, "OUTPUT:\n", error, stdout);
-				error ? reject(error) : resolve(stdout.trim());
-			}
-		);
-	});
-}
-
-const clone = async (repoFullname) => {
-	// TODO [#8]: allow customizing the branch
-	return execCmd(
-		`git clone --depth 1 https://${GITHUB_TOKEN}@github.com/${repoFullname}.git ${getRepoPath(
-			repoFullname
-		)}`
-	);
-};
-
-const hasChanges = async (repoFullname) => {
-	const statusOutput = await execCmd(
-		`git status --porcelain`,
-		getRepoPath(repoFullname)
-	);
-	return porcelainParse(statusOutput).length !== 0;
-};
-
-const commitAll = async (repoFullname) => {
-	if (!(await hasChanges(repoFullname))) {
-		logger.info(repoFullname, "- NO CHANGES DETECTED");
-		return;
-	}
-	logger.info(repoFullname, "- CHANGES DETECTED");
-	logger.info(repoFullname, "- COMMIT CHANGES...");
-	if (!DRY_RUN) {
-		const output = await execCmd(
-			[
-				`git config --local user.name "${GIT_USERNAME}"`,
-				`git config --local user.email "${GIT_EMAIL}"`,
-				`git add -A`,
-				`git status`,
-				// TODO [#9]: improve commit message to contain more details about the changes
-				// TODO [#10]: allow customization of COMMIT_MESSAGE
-				`git commit --message "${COMMIT_MESSAGE}"`,
-				`git push`,
-			].join(" && "),
-			getRepoPath(repoFullname)
-		);
-		if (!output.includes("Update file(s) from")) {
-			throw new Error("failed to commit changes");
-		}
-	}
-	logger.info(repoFullname, "- CHANGES COMMITED");
-};
 
 module.exports = {
-	clone,
-	commitAll,
+	init: (repoFullname) => {
+		const { getRepoPath } = __webpack_require__(543).init(repoFullname);
+
+		const logger = __webpack_require__(852)(repoFullname);
+
+		function execCmd(command, workingDir) {
+			logger.info(`EXEC: "${command}" IN "${workingDir || "./"}"`);
+			return new Promise((resolve, reject) => {
+				exec(
+					command,
+					{
+						cwd: workingDir,
+					},
+					function (error, stdout) {
+						logger.info(`OUTPUT: "${error}${stdout}"`);
+						error ? reject(error) : resolve(stdout.trim());
+					}
+				);
+			});
+		}
+
+		const clone = async () => {
+			// TODO [#16]: allow customizing the branch
+			return execCmd(
+				`git clone --depth 1 https://${GITHUB_TOKEN}@github.com/${repoFullname}.git ${getRepoPath(
+					repoFullname
+				)}`
+			);
+		};
+
+		const hasChanges = async () => {
+			const statusOutput = await execCmd(
+				`git status --porcelain`,
+				getRepoPath(repoFullname)
+			);
+			return porcelainParse(statusOutput).length !== 0;
+		};
+
+		const commitAll = async () => {
+			if (!(await hasChanges())) {
+				logger.info("NO CHANGES DETECTED");
+				return;
+			}
+			logger.info("CHANGES DETECTED");
+			logger.info("COMMIT CHANGES...");
+			if (!DRY_RUN) {
+				const output = await execCmd(
+					[
+						`git config --local user.name "${GIT_USERNAME}"`,
+						`git config --local user.email "${GIT_EMAIL}"`,
+						`git add -A`,
+						`git status`,
+						// TODO [#17]: improve commit message to contain more details about the changes
+						// TODO [#18]: allow customization of COMMIT_MESSAGE
+						`git commit --message "${COMMIT_MESSAGE}"`,
+						`git push`,
+					].join(" && "),
+					getRepoPath(repoFullname)
+				);
+				if (!output.includes("Update file(s) from")) {
+					throw new Error("failed to commit changes");
+				}
+			}
+			logger.info("CHANGES COMMITED");
+		};
+
+		return {
+			clone,
+			commitAll,
+		};
+	},
 };
 
 
@@ -4481,29 +4515,64 @@ const joinAttributes = (...attrs) =>
 		)
 		.join(" ");
 
-const info = (...attrs) => {
-	core.info(joinAttributes(...attrs));
-};
+const logs = {};
 
-const warn = (...attrs) => {
-	core.warning(joinAttributes(...attrs));
-};
+module.exports = (id) => {
+	logs[id] = [];
 
-const error = (...attrs) => {
-	const message = joinAttributes(...attrs);
-	core.error(message);
-	core.setFailed(`Action failed with error ${message}`);
-};
+	const debug = (...attrs) => {
+		logs[id].push(["debug", joinAttributes(...attrs)]);
+		if (!id) {
+			print();
+		}
+	};
 
-const debug = (...attrs) => {
-	core.debug(joinAttributes(...attrs));
-};
+	const error = (...attrs) => {
+		logs[id].push(["error", joinAttributes(...attrs)]);
+		core.setFailed(`Action failed with error ${message}`);
+		if (!id) {
+			print();
+		}
+	};
 
-module.exports = {
-	debug,
-	error,
-	info,
-	warn,
+	const info = (...attrs) => {
+		logs[id].push(["info", joinAttributes(...attrs)]);
+		if (!id) {
+			print();
+		}
+	};
+
+	const warn = (...attrs) => {
+		logs[id].push(["warning", joinAttributes(...attrs)]);
+		if (!id) {
+			print();
+		}
+	};
+
+	const _print = (id) => {
+		logs[id].forEach(([type, content]) => {
+			core[type](id ? `${id}: ${content}` : content);
+		});
+		logs[id] = [];
+	};
+
+	const print = (_id = id) => {
+		if (!_id) {
+			Object.keys(logs).forEach((key) => {
+				_print(key);
+			});
+		} else {
+			_print(_id);
+		}
+	};
+
+	return {
+		debug,
+		error,
+		info,
+		print,
+		warn,
+	};
 };
 
 
@@ -4617,7 +4686,7 @@ function setopts (self, pattern, options) {
   if (process.platform === "win32")
     self.root = self.root.replace(/\\/g, "/")
 
-  // TODO [#11]: is an absolute `cwd` supposed to be resolved against `root`?
+  // TODO: is an absolute `cwd` supposed to be resolved against `root`?
   // e.g. { cwd: '/test', root: __dirname } === path.join(__dirname, '/test')
   self.cwdAbs = isAbsolute(self.cwd) ? self.cwd : makeAbs(self, self.cwd)
   if (process.platform === "win32")

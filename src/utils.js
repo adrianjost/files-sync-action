@@ -1,66 +1,90 @@
-const fs = require("fs");
+const fs = require("fs").promises;
 const path = require("path");
 const listDir = require("recursive-readdir");
 const rimraf = require("rimraf");
 
 const { TMPDIR, FILE_PATTERNS, DRY_RUN, SKIP_DELETE } = require("./context");
-const logger = require("./log");
 
-const getRepoPath = (repoFullname) => {
-	return path.join(TMPDIR, repoFullname);
-};
+const init = (repoFullname) => {
+	const logger = require("./log")(repoFullname);
 
-const getRepoRelativeFilePath = (repoFullname, filePath) => {
-	return path.relative(getRepoPath(repoFullname), filePath);
-};
+	const getRepoPath = () => {
+		return path.join(TMPDIR, repoFullname);
+	};
 
-const getMatchingFiles = (repoFullname, files) => {
-	logger.info(
-		"FILE_PATTERNS",
-		FILE_PATTERNS.map((a) => a.toString())
-	);
-	return files.filter((file) => {
-		cleanFile = file
+	const getRepoRelativeFilePath = (filePath) => {
+		return path.relative(getRepoPath(), filePath);
+	};
+
+	const getPrettyPath = (file) =>
+		file
 			.replace(/\\/g, "/")
 			.replace(/^\//, "")
 			.replace(new RegExp(`^${TMPDIR}/${repoFullname}/`), "");
-		const hasMatch = FILE_PATTERNS.some((r) => r.test(cleanFile));
-		logger.info("TEST", cleanFile, "FOR MATCH =>", hasMatch);
-		return hasMatch;
-	});
-};
 
-const getFiles = async (repoFullname) => {
-	// TODO [#19]: evaluate if ignoring .git is a good idea
-	const files = await listDir(getRepoPath(repoFullname), [".git"]);
-	logger.info("FILES:", JSON.stringify(files, undefined, 2));
-	const matchingFiles = getMatchingFiles(repoFullname, files);
-	logger.info("MATCHING FILES:", JSON.stringify(matchingFiles, undefined, 2));
-	return matchingFiles;
-};
-
-const removeFiles = async (filePaths) => {
-	if (SKIP_DELETE) {
+	const getMatchingFiles = (files) => {
 		logger.info(
-			"SKIP REMOVING FILES because `SKIP_DELETE` is set to `true`",
-			filePaths
+			"FILE_PATTERNS",
+			FILE_PATTERNS.map((a) => a.toString())
 		);
-	}
-	logger.info("REMOVE FILES", filePaths);
-	if (DRY_RUN) {
-		return;
-	}
-	return Promise.all(filePaths.map((file) => fs.promises.unlink(file)));
-};
+		return files.filter((file) => {
+			cleanFile = getPrettyPath(file);
+			const hasMatch = FILE_PATTERNS.some((r) => r.test(cleanFile));
+			return hasMatch;
+		});
+	};
 
-const copyFile = async (from, to) => {
-	// TODO [#20]: add option to skip replacement of files
-	logger.info("copy", from, "to", to);
-	if (DRY_RUN) {
-		return;
-	}
-	await fs.promises.mkdir(path.dirname(to), { recursive: true });
-	await fs.promises.copyFile(from, to);
+	const getFiles = async () => {
+		// TODO [#19]: evaluate if ignoring .git is a good idea
+		const files = await listDir(getRepoPath(), [".git"]);
+		logger.debug(
+			"FILES:",
+			JSON.stringify(files.map(getPrettyPath), undefined, 2)
+		);
+		const matchingFiles = getMatchingFiles(files);
+		logger.info(
+			"MATCHING FILES:",
+			JSON.stringify(matchingFiles.map(getPrettyPath), undefined, 2)
+		);
+		return matchingFiles;
+	};
+
+	const copyFile = async (from, to) => {
+		// TODO [#20]: add option to skip replacement of files
+		logger.info(
+			"copy",
+			from.replace(/\\/g, "/").replace(/^\//, ""),
+			"to",
+			to.replace(/\\/g, "/").replace(/^\//, "")
+		);
+		if (DRY_RUN) {
+			return;
+		}
+		await fs.mkdir(path.dirname(to), { recursive: true });
+		await fs.copyFile(from, to);
+	};
+
+	const removeFiles = async (filePaths) => {
+		if (SKIP_DELETE) {
+			logger.info(
+				"SKIP REMOVING FILES because `SKIP_DELETE` is set to `true`",
+				filePaths.map((f) => `"${f}"`).join(", ")
+			);
+		}
+		logger.info("REMOVE FILES", filePaths);
+		if (DRY_RUN) {
+			return;
+		}
+		return Promise.all(filePaths.map((file) => fs.unlink(file)));
+	};
+
+	return {
+		copyFile,
+		getFiles,
+		getRepoPath,
+		getRepoRelativeFilePath,
+		removeFiles,
+	};
 };
 
 const removeDir = async (dir) => {
@@ -81,10 +105,6 @@ const removeDir = async (dir) => {
 };
 
 module.exports = {
-	copyFile,
-	getFiles,
-	getRepoPath,
-	getRepoRelativeFilePath,
+	init,
 	removeDir,
-	removeFiles,
 };

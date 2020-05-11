@@ -2,57 +2,67 @@ const path = require("path");
 
 const { SRC_REPO, TARGET_REPOS, TMPDIR, SKIP_CLEANUP } = require("./context");
 const git = require("./git");
-const {
-	getFiles,
-	getRepoPath,
-	getRepoRelativeFilePath,
-	removeFiles,
-	copyFile,
-	removeDir,
-} = require("./utils");
+const { removeDir } = require("./utils");
+
+const showLogs = require("./log")().print;
 
 const main = async () => {
 	let error;
 	try {
 		// PREPARE SRC
-		await git.clone(SRC_REPO);
-		const srcFiles = await getFiles(SRC_REPO);
+		const gitSrc = git.init(SRC_REPO);
+		const utilsSrc = require("./utils").init(SRC_REPO);
+
+		await gitSrc.clone();
+		const srcFiles = await utilsSrc.getFiles();
 		const relativeSrcFiles = srcFiles.map((file) =>
-			getRepoRelativeFilePath(SRC_REPO, file)
+			utilsSrc.getRepoRelativeFilePath(file)
 		);
+		showLogs(SRC_REPO);
+
+		await new Promise((resolve) => setTimeout(resolve, 5000));
 
 		// EXEC IN TARGET REPOS
 		await Promise.all(
 			TARGET_REPOS.map(async (repo) => {
+				const utilsRepo = require("./utils").init(repo);
+				const gitRepo = git.init(repo);
+
 				// PREPARE TARGET
-				await git.clone(repo);
-				const targetFiles = await getFiles(repo);
+				await gitRepo.clone();
+				const targetFiles = await utilsRepo.getFiles();
 				const removedFiles = targetFiles.filter(
 					(file) =>
-						!relativeSrcFiles.includes(getRepoRelativeFilePath(repo, file))
+						!relativeSrcFiles.includes(utilsRepo.getRepoRelativeFilePath(file))
 				);
 
 				// UPDATE FILES
 				await Promise.all([
-					removeFiles(removedFiles),
+					utilsRepo.removeFiles(removedFiles),
 					srcFiles.map(async (srcFile) =>
-						copyFile(
+						utilsRepo.copyFile(
 							srcFile,
 							path.join(
-								getRepoPath(repo),
-								getRepoRelativeFilePath(SRC_REPO, srcFile)
+								utilsRepo.getRepoPath(),
+								utilsSrc.getRepoRelativeFilePath(srcFile)
 							)
 						)
 					),
 				]);
 
 				// COMMIT UPDATES
-				await git.commitAll(repo);
+				await gitRepo.commitAll();
+
+				showLogs(repo);
 			})
 		);
 	} catch (err) {
 		error = err;
 	}
+
+	// Output all Logs
+	require("./log")().print();
+
 	if (!SKIP_CLEANUP) {
 		await removeDir(TMPDIR);
 	}

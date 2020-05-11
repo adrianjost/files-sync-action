@@ -10,27 +10,62 @@ const joinAttributes = (...attrs) =>
 		)
 		.join(" ");
 
-const info = (...attrs) => {
-	core.info(joinAttributes(...attrs));
-};
+const logs = {};
 
-const warn = (...attrs) => {
-	core.warning(joinAttributes(...attrs));
-};
+module.exports = (id) => {
+	logs[id] = [];
 
-const error = (...attrs) => {
-	const message = joinAttributes(...attrs);
-	core.error(message);
-	core.setFailed(`Action failed with error ${message}`);
-};
+	const debug = (...attrs) => {
+		logs[id].push(["debug", joinAttributes(...attrs)]);
+		if (!id) {
+			print();
+		}
+	};
 
-const debug = (...attrs) => {
-	core.debug(joinAttributes(...attrs));
-};
+	const error = (...attrs) => {
+		logs[id].push(["error", joinAttributes(...attrs)]);
+		core.setFailed(`Action failed with error ${message}`);
+		if (!id) {
+			print();
+		}
+	};
 
-module.exports = {
-	debug,
-	error,
-	info,
-	warn,
+	const info = (...attrs) => {
+		logs[id].push(["info", joinAttributes(...attrs)]);
+		if (!id) {
+			print();
+		}
+	};
+
+	const warn = (...attrs) => {
+		logs[id].push(["warning", joinAttributes(...attrs)]);
+		if (!id) {
+			print();
+		}
+	};
+
+	const _print = (id) => {
+		logs[id].forEach(([type, content]) => {
+			core[type](id ? `${id}: ${content}` : content);
+		});
+		logs[id] = [];
+	};
+
+	const print = (_id = id) => {
+		if (!_id) {
+			Object.keys(logs).forEach((key) => {
+				_print(key);
+			});
+		} else {
+			_print(_id);
+		}
+	};
+
+	return {
+		debug,
+		error,
+		info,
+		print,
+		warn,
+	};
 };
