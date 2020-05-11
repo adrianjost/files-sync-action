@@ -706,7 +706,7 @@ function parse (pattern, isSub) {
           // an invalid re. if so, re-walk the contents of the
           // would-be class to re-translate any characters that
           // were passed through as-is
-          // TODO [$5eb9b440fa4947000871a034]: It would probably be faster to determine this
+          // TODO [#22]: It would probably be faster to determine this
           // without a try/catch and a new RegExp, but it's tricky
           // to do safely.  For now, this is safe and works.
           var cs = pattern.substring(classStart + 1, i)
@@ -4686,7 +4686,7 @@ function setopts (self, pattern, options) {
   if (process.platform === "win32")
     self.root = self.root.replace(/\\/g, "/")
 
-  // TODO [$5eb9b440fa4947000871a035]: is an absolute `cwd` supposed to be resolved against `root`?
+  // TODO [#23]: is an absolute `cwd` supposed to be resolved against `root`?
   // e.g. { cwd: '/test', root: __dirname } === path.join(__dirname, '/test')
   self.cwdAbs = isAbsolute(self.cwd) ? self.cwd : makeAbs(self, self.cwd)
   if (process.platform === "win32")
