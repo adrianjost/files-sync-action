@@ -12,9 +12,8 @@ jobs:
           ref: "master"
       - name: Keep dist up-to-date
         run: |
-          npm i
+          npm ci
           npm run build
-          npm run pack
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add dist/index.js
