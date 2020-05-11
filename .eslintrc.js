@@ -11,8 +11,5 @@ module.exports = {
 	},
 	env: {
 		es6: true,
-		es7: true,
-		es8: true,
-		es9: true,
 	},
 };

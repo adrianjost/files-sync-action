@@ -6,6 +6,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: |
-          npm i
+          npm ci
           npm run lint:all
           npm run build
