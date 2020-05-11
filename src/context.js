@@ -37,7 +37,9 @@ const context = {
 	TARGET_REPOS: parseMultilineInput(
 		core.getInput("TARGET_REPOS", { required: true })
 	),
-	TMPDIR: core.getInput("TEMP_DIR", { required: false }) || `src`,
+	TMPDIR:
+		core.getInput("TEMP_DIR", { required: false }) ||
+		`tmp-${Date.now().toString()}`,
 };
 
 while (fs.existsSync(context.TMPDIR)) {
