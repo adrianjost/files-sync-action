@@ -46,7 +46,7 @@ module.exports = (id) => {
 
 	const _print = (id) => {
 		logs[id].forEach(([type, content]) => {
-			core[type](id ? `${id}: ${content}` : content);
+			core[type](id !== "undefined" ? `${id}: ${content}` : content);
 		});
 		logs[id] = [];
 	};

@@ -1,18 +1,14 @@
+const fs = require("fs");
+
 const core = require("@actions/core");
 
-// TODO [#12]: check that all required envs are defined
+const logger = require("./log")();
 
-// TODO [#13]: check that tmp directory does not exist already
-// shuffle name or clean directory
-
-// TODO [#14]: validate that SRC_REPO is not in TARGET_REPOS
-
-// TODO [#15]: add JSDoc comment
 const parseMultilineInput = (multilineInput) => {
 	return multilineInput.split("\n").map((e) => e.trim());
 };
 
-module.exports = {
+const context = {
 	get COMMIT_MESSAGE() {
 		return `Update file(s) from \"${this.SRC_REPO}\"`;
 	},
@@ -41,7 +37,17 @@ module.exports = {
 	TARGET_REPOS: parseMultilineInput(
 		core.getInput("TARGET_REPOS", { required: true })
 	),
-	TMPDIR:
-		core.getInput("TEMP_DIR", { required: false }) ||
-		`tmp-${Date.now().toString()}`,
+	TMPDIR: core.getInput("TEMP_DIR", { required: false }) || `src`,
 };
+
+while (fs.existsSync(context.TMPDIR)) {
+	context.TMPDIR = `tmp-${Date.now().toString()}`;
+	logger.info(`TEMP_DIR already exists. Using "${context.TMPDIR}" now.`);
+}
+
+logger.info("Context:", {
+	...context,
+	GITHUB_TOKEN: "<secret>",
+});
+
+module.exports = context;

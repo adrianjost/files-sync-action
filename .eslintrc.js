@@ -7,9 +7,12 @@ module.exports = {
 		"sort-keys-fix/sort-keys-fix": ["error"],
 	},
 	parserOptions: {
-		ecmaVersion: 2017,
+		ecmaVersion: 2018,
 	},
 	env: {
 		es6: true,
+		es7: true,
+		es8: true,
+		es9: true,
 	},
 };
