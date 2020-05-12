@@ -3,7 +3,7 @@ author: Adrian Jost
 branding:
   color: green
   icon: copy
-description: Copies secrets from the action's environment to many other repos.
+description: Copies files from the action's environment (or any other repo) to many other repos.
 inputs:
   DRY_RUN:
     description: |
