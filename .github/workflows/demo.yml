@@ -12,6 +12,7 @@ jobs:
     steps:
       - uses: adrianjost/files-sync-action@master
         with:
+          DRY_RUN: true
           FILE_PATTERNS: |
             ^README.md$
             ^.github/workflows/sync-.*
