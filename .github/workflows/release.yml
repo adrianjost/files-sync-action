@@ -9,6 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
+          token: ${{ secrets.SYNCED_GITHUB_TOKEN }} 
           ref: "master"
       - name: Keep dist up-to-date
         run: |
