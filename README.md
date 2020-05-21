@@ -2,7 +2,6 @@
 
 [![Build](https://github.com/adrianjost/files-sync-action/workflows/Build/badge.svg)](https://github.com/adrianjost/files-sync-action/actions?query=workflow%3ABuild) [![Release](https://github.com/adrianjost/files-sync-action/workflows/Release/badge.svg)](https://github.com/adrianjost/files-sync-action/actions?query=workflow%3ARelease) [![Dependency Status](https://david-dm.org/adrianjost/files-sync-action.svg)](https://david-dm.org/adrianjost/files-sync-action) [![Dependency Status](https://david-dm.org/adrianjost/files-sync-action/dev-status.svg)](https://david-dm.org/adrianjost/files-sync-action?type=dev) ![GitHub contributors](https://img.shields.io/github/contributors/adrianjost/files-sync-action?color=bright-green)
 
-
 [![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=adrianjost/files-sync-action)](https://dependabot.com) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
 
 A Github Action that can sync files from one repository to many others. This action allows a maintainer to define community health files in a single repository and have them synced to all other repositories in the Github organization or beyond. You could sync common GitHub Action Workflows, your LICENSE or any other file you can imagine. Regex is used to select the files. Exclude is currently not supported and it is recommended to use a bot user if possible.
@@ -30,6 +29,17 @@ Source of truth for all files to sync. If files get added, modified or deleted h
 3. created in the `TARGET_REPO`, if they do not exist yet there.
 
 All filpaths start at the repository root without a leading slash. The delimiter between path segments is always a forward slash.
+
+### `COMMIT_MESSAGE`
+
+The commit message that will be used to commit the changed files. Check the README for all interpolation options. You can interpolate values by using placeholders in the form of `%KEY%` where key can be one of the following items:
+
+| key           | description                                |
+| ------------- | ------------------------------------------ |
+| `SRC_REPO`    | The value from the according action input. |
+| `TARGET_REPO` | The current repo to commit into            |
+
+You need more? Let me know by [opening an issue here](https://github.com/adrianjost/files-sync-action/issues/new). I will do my best to add them.
 
 ### `SKIP_DELETE`
 

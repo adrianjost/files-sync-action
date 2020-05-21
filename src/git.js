@@ -3,11 +3,23 @@ const { parse: porcelainParse } = require("@putout/git-status-porcelain");
 
 const {
 	GITHUB_TOKEN,
+	SRC_REPO,
 	COMMIT_MESSAGE,
 	GIT_USERNAME,
 	GIT_EMAIL,
 	DRY_RUN,
 } = require("./context");
+
+const interpolateCommitMessage = (message, data) => {
+	let newMessage = message;
+	Object.keys(data).forEach((key) => {
+		if (key === "COMMIT_MESSAGE") {
+			return;
+		}
+		newMessage = newMessage.replace(new RegExp(`%${key}%`, "g"), data[key]);
+	});
+	return newMessage;
+};
 
 module.exports = {
 	init: (repoFullname) => {
@@ -55,6 +67,10 @@ module.exports = {
 			}
 			logger.info("CHANGES DETECTED");
 			logger.info("COMMIT CHANGES...");
+			const commitMessage = interpolateCommitMessage(COMMIT_MESSAGE, {
+				SRC_REPO: SRC_REPO,
+				TARGET_REPO: repoFullname,
+			});
 			if (!DRY_RUN) {
 				const output = await execCmd(
 					[
@@ -63,8 +79,7 @@ module.exports = {
 						`git add -A`,
 						`git status`,
 						// TODO [#17]: improve commit message to contain more details about the changes
-						// TODO [#18]: allow customization of COMMIT_MESSAGE
-						`git commit --message "${COMMIT_MESSAGE}"`,
+						`git commit --message "${commitMessage}"`,
 						`git push`,
 					].join(" && "),
 					getRepoPath(repoFullname)

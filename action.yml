@@ -5,6 +5,10 @@ branding:
   icon: copy
 description: Copies files from the action's environment (or any other repo) to many other repos.
 inputs:
+  COMMIT_MESSAGE:
+    description: |
+      The commit message that will be used to commit the changed files. Check the README for all interpolation options.
+    required: false
   DRY_RUN:
     description: |
       Run everything except for the copying, removing and commiting functionality.

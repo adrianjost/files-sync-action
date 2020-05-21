@@ -10,7 +10,10 @@ const parseMultilineInput = (multilineInput) => {
 
 const context = {
 	get COMMIT_MESSAGE() {
-		return `Update file(s) from \"${this.SRC_REPO}\"`;
+		return (
+			core.getInput("COMMIT_MESSAGE", { required: false }) ||
+			`Update file(s) from \"%SRC_REPO%\"`
+		);
 	},
 	DRY_RUN: ["1", "true"].includes(
 		core.getInput("DRY_RUN", { required: false }).toLowerCase()
