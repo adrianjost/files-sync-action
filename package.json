@@ -33,7 +33,7 @@
 		"eslint-plugin-prettier": "^3.1.4",
 		"eslint-plugin-sort-keys-fix": "^1.1.1",
 		"husky": "^4.3.0",
-		"prettier": "^2.2.0"
+		"prettier": "^2.2.1"
 	},
 	"husky": {
 		"hooks": {
