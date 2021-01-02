@@ -93,3 +93,19 @@ See the workflows in [this repository](https://github.com/adrianjost/.github) fo
 
 - [ ] allow RegExp for repo selection just like in [google/secrets-sync-action](https://github.com/google/secrets-sync-action) allows it.
 - [ ] add option to skip replacement of files
+
+## Local Testing
+
+create `./test.js` with the following content to execute the code locally.
+
+```
+process.env.INPUT_SRC_REPO = "adrianjost/files-sync-action";
+process.env.INPUT_TARGET_REPOS = "adrianjost/files-sync-target";
+process.env.INPUT_GITHUB_TOKEN = "YOUR_GITHUB_TOKEN";
+process.env.INPUT_FILE_PATTERNS = "^README.md$";
+process.env.INPUT_SKIP_CLEANUP = "false";
+process.env.GITHUB_ACTOR = "adrianjost";
+process.env.INPUT_DRY_RUN = "true";
+
+require("./index");
+```
