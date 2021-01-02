@@ -94,8 +94,8 @@ const init = (repoFullname) => {
 	return {
 		copyFile,
 		getFiles,
-		getRepoPath,
 		getRepoFilePath,
+		getRepoPath,
 		getRepoRelativeFilePath,
 		removeFiles,
 	};
