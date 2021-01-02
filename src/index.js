@@ -2,7 +2,7 @@ const path = require("path");
 
 const { SRC_REPO, TARGET_REPOS, TMPDIR, SKIP_CLEANUP } = require("./context");
 const git = require("./git");
-const { removeDir, utils } = require("./utils");
+const { removeDir } = require("./utils");
 
 const showLogs = require("./log")().print;
 
@@ -11,7 +11,7 @@ const main = async () => {
 	try {
 		// PREPARE SRC
 		const gitSrc = git.init(SRC_REPO);
-		const utilsSrc = utils.init(SRC_REPO);
+		const utilsSrc = require("./utils").init(SRC_REPO);
 
 		await gitSrc.clone();
 		const srcFiles = await utilsSrc.getFiles();
@@ -25,7 +25,7 @@ const main = async () => {
 		// EXEC IN TARGET REPOS
 		await Promise.all(
 			TARGET_REPOS.map(async (repo) => {
-				const utilsRepo = utils.init(repo);
+				const utilsRepo = require("./utils").init(repo);
 				const gitRepo = git.init(repo);
 
 				// PREPARE TARGET
