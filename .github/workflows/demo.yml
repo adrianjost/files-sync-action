@@ -23,7 +23,7 @@ jobs:
         with:
           DRY_RUN: true
           FILE_PATTERNS: |
-            **/*.js
+            ".*\.js"
           TARGET_REPOS: |
             adrianjost/files-sync-target
           SRC_ROOT: "/src/"
