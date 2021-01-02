@@ -30,6 +30,14 @@ Source of truth for all files to sync. If files get added, modified or deleted h
 
 All filpaths start at the repository root without a leading slash. The delimiter between path segments is always a forward slash.
 
+### `SRC_ROOT`
+
+Prepends this to all filepaths in the source repository. Defaults to `/`.
+
+### `TARGET_ROOT`
+
+Prepends this to all filepaths in the target repository. Defaults to `/`.
+
 ### `COMMIT_MESSAGE`
 
 The commit message that will be used to commit the changed files. Check the README for all interpolation options. You can interpolate values by using placeholders in the form of `%KEY%` where key can be one of the following items:
