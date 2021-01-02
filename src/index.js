@@ -43,7 +43,7 @@ const main = async () => {
 						utilsRepo.copyFile(
 							srcFile,
 							path.join(
-								utilsRepo.getRepoPath(),
+								utilsRepo.getRepoFilePath(),
 								utilsSrc.getRepoRelativeFilePath(srcFile)
 							)
 						)

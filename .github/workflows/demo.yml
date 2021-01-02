@@ -19,3 +19,13 @@ jobs:
           TARGET_REPOS: |
             adrianjost/files-sync-target
           GITHUB_TOKEN: ${{ secrets.SYNCED_GITHUB_TOKEN }}
+      - uses: adrianjost/files-sync-action@master
+        with:
+          DRY_RUN: true
+          FILE_PATTERNS: |
+            ^.js
+          TARGET_REPOS: |
+            adrianjost/files-sync-target
+          SRC_ROOT: "/src/"
+          TARGET_ROOT: "/target/"
+          GITHUB_TOKEN: ${{ secrets.SYNCED_GITHUB_TOKEN }}
