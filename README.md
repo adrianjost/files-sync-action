@@ -36,7 +36,7 @@ Prepends this to all filepaths in the source repository. Defaults to `/`.
 
 ### `TARGET_ROOT`
 
-Prepends this to all filepaths in the target repository. Defaults to `/`.
+Prepends this to all filepaths in the target repository. It is the same for all target repositories and can not be adjusted on a per repo basis. Defaults to `/`.
 
 ### `COMMIT_MESSAGE`
 
