@@ -8,7 +8,8 @@ jobs:
     name: File Sync
     runs-on: ubuntu-latest
     steps:
-      - uses: adrianjost/files-sync-action@master
+      - uses: actions/checkout@v2
+      - uses: ./
         name: "Simple"
         with:
           DRY_RUN: true
@@ -18,7 +19,7 @@ jobs:
           TARGET_REPOS: |
             adrianjost/files-sync-target
           GITHUB_TOKEN: ${{ secrets.SYNCED_GITHUB_TOKEN }}
-      - uses: adrianjost/files-sync-action@master
+      - uses: ./
         name: "With custom roots"
         with:
           DRY_RUN: true
