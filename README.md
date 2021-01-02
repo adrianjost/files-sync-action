@@ -30,6 +30,14 @@ Source of truth for all files to sync. If files get added, modified or deleted h
 
 All filpaths start at the repository root without a leading slash. The delimiter between path segments is always a forward slash.
 
+### `SRC_ROOT`
+
+Prepends this to all filepaths in the source repository. Defaults to `/`.
+
+### `TARGET_ROOT`
+
+Prepends this to all filepaths in the target repository. It is the same for all target repositories and can not be adjusted on a per repo basis. Defaults to `/`.
+
 ### `COMMIT_MESSAGE`
 
 The commit message that will be used to commit the changed files. Check the README for all interpolation options. You can interpolate values by using placeholders in the form of `%KEY%` where key can be one of the following items:
@@ -85,3 +93,19 @@ See the workflows in [this repository](https://github.com/adrianjost/.github) fo
 
 - [ ] allow RegExp for repo selection just like in [google/secrets-sync-action](https://github.com/google/secrets-sync-action) allows it.
 - [ ] add option to skip replacement of files
+
+## Local Testing
+
+create `./test.js` with the following content to execute the code locally.
+
+```
+process.env.INPUT_SRC_REPO = "adrianjost/files-sync-action";
+process.env.INPUT_TARGET_REPOS = "adrianjost/files-sync-target";
+process.env.INPUT_GITHUB_TOKEN = "YOUR_GITHUB_TOKEN";
+process.env.INPUT_FILE_PATTERNS = "^README.md$";
+process.env.INPUT_SKIP_CLEANUP = "false";
+process.env.GITHUB_ACTOR = "adrianjost";
+process.env.INPUT_DRY_RUN = "true";
+
+require("./index");
+```

@@ -48,6 +48,14 @@ inputs:
     description: |
       The working directory where all sync operations will be done. Defaults to `tmp-${Date.now().toString()}`
     required: false
+  SRC_ROOT:
+    description: |
+      Prepends this to all filepaths in the source repository. Defaults to `/`.
+    required: false
+  TARGET_ROOT:
+    description: |
+      Prepends this to all filepaths in the target repository. Defaults to `/`.
+    required: false
 runs:
   main: dist/index.js
   using: node12

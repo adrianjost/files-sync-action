@@ -3,14 +3,14 @@ name: Demo
   schedule:
     - cron: "0 3 * * *"
   push:
-    branches:
-      - master
 jobs:
   file-sync:
     name: File Sync
     runs-on: ubuntu-latest
     steps:
-      - uses: adrianjost/files-sync-action@master
+      - uses: actions/checkout@v2
+      - uses: ./
+        name: "Simple"
         with:
           DRY_RUN: true
           FILE_PATTERNS: |
@@ -18,4 +18,15 @@ jobs:
             ^.github/workflows/sync-.*
           TARGET_REPOS: |
             adrianjost/files-sync-target
+          GITHUB_TOKEN: ${{ secrets.SYNCED_GITHUB_TOKEN }}
+      - uses: ./
+        name: "With custom roots"
+        with:
+          DRY_RUN: true
+          FILE_PATTERNS: |
+            .*\.js
+          TARGET_REPOS: |
+            adrianjost/files-sync-target
+          SRC_ROOT: "/src/"
+          TARGET_ROOT: "/target/"
           GITHUB_TOKEN: ${{ secrets.SYNCED_GITHUB_TOKEN }}

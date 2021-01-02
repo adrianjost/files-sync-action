@@ -37,9 +37,11 @@ const context = {
 	SRC_REPO:
 		core.getInput("SRC_REPO", { required: false }) ||
 		process.env.GITHUB_REPOSITORY,
+	SRC_ROOT: core.getInput("SRC_ROOT", { required: false }) || "/",
 	TARGET_REPOS: parseMultilineInput(
 		core.getInput("TARGET_REPOS", { required: true })
 	),
+	TARGET_ROOT: core.getInput("TARGET_ROOT", { required: false }) || "/",
 	TMPDIR:
 		core.getInput("TEMP_DIR", { required: false }) ||
 		`tmp-${Date.now().toString()}`,

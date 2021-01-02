@@ -3,7 +3,15 @@ const path = require("path");
 const listDir = require("recursive-readdir");
 const rimraf = require("rimraf");
 
-const { TMPDIR, FILE_PATTERNS, DRY_RUN, SKIP_DELETE } = require("./context");
+const {
+	TMPDIR,
+	FILE_PATTERNS,
+	DRY_RUN,
+	SKIP_DELETE,
+	SRC_REPO,
+	SRC_ROOT,
+	TARGET_ROOT,
+} = require("./context");
 
 const init = (repoFullname) => {
 	const logger = require("./log")(repoFullname);
@@ -12,15 +20,20 @@ const init = (repoFullname) => {
 		return path.join(TMPDIR, repoFullname);
 	};
 
+	const getRepoRoot = () =>
+		repoFullname === SRC_REPO ? SRC_ROOT : TARGET_ROOT;
+
+	const getRepoFilePath = () => path.join(getRepoPath(), getRepoRoot());
+
 	const getRepoRelativeFilePath = (filePath) => {
-		return path.relative(getRepoPath(), filePath);
+		return path.relative(getRepoFilePath(), filePath);
 	};
 
 	const getPrettyPath = (file) =>
 		file
 			.replace(/\\/g, "/")
 			.replace(/^\//, "")
-			.replace(new RegExp(`^${TMPDIR}/${repoFullname}/`), "");
+			.replace(new RegExp(`^${TMPDIR}/${repoFullname}${getRepoRoot()}`), "");
 
 	const getMatchingFiles = (files) => {
 		logger.info(
@@ -81,6 +94,7 @@ const init = (repoFullname) => {
 	return {
 		copyFile,
 		getFiles,
+		getRepoFilePath,
 		getRepoPath,
 		getRepoRelativeFilePath,
 		removeFiles,
