@@ -3,8 +3,6 @@ name: Demo
   schedule:
     - cron: "0 3 * * *"
   push:
-    branches:
-      - master
 jobs:
   file-sync:
     name: File Sync
