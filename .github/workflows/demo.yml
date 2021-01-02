@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: adrianjost/files-sync-action@master
+        name: "Simple"
         with:
           DRY_RUN: true
           FILE_PATTERNS: |
@@ -18,10 +19,11 @@ jobs:
             adrianjost/files-sync-target
           GITHUB_TOKEN: ${{ secrets.SYNCED_GITHUB_TOKEN }}
       - uses: adrianjost/files-sync-action@master
+        name: "With custom roots"
         with:
           DRY_RUN: true
           FILE_PATTERNS: |
-            ^.js
+            **/*.js
           TARGET_REPOS: |
             adrianjost/files-sync-target
           SRC_ROOT: "/src/"
