@@ -96,7 +96,6 @@ See the workflows in [this repository](https://github.com/adrianjost/.github) fo
 ## Planned Features
 
 - [ ] allow RegExp for repo selection just like in [google/secrets-sync-action](https://github.com/google/secrets-sync-action) allows it.
-- [ ] add option to skip replacement of files
 
 ## Local Testing
 
