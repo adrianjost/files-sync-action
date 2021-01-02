@@ -12,9 +12,10 @@ const {
 	SRC_ROOT,
 	TARGET_ROOT,
 } = require("./context");
+const getLogger = require("./log");
 
 const init = (repoFullname) => {
-	const logger = require("./log")(repoFullname);
+	const logger = getLogger(repoFullname);
 
 	const getRepoPath = () => {
 		return path.join(TMPDIR, repoFullname);

@@ -10,6 +10,9 @@ const {
 	DRY_RUN,
 } = require("./context");
 
+const utils = require("./utils");
+const getLogger = require("./log");
+
 const interpolateCommitMessage = (message, data) => {
 	let newMessage = message;
 	Object.keys(data).forEach((key) => {
@@ -23,9 +26,9 @@ const interpolateCommitMessage = (message, data) => {
 
 module.exports = {
 	init: (repoFullname) => {
-		const { getRepoPath } = require("./utils").init(repoFullname);
+		const { getRepoPath } = utils.init(repoFullname);
 
-		const logger = require("./log")(repoFullname);
+		const logger = getLogger(repoFullname);
 
 		function execCmd(command, workingDir) {
 			logger.info(`EXEC: "${command}" IN "${workingDir || "./"}"`);

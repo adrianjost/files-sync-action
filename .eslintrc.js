@@ -6,9 +6,10 @@ module.exports = {
 	parserOptions: {
 		ecmaVersion: 2018,
 	},
-	plugins: ["prettier", "sort-keys-fix"],
+	plugins: ["prettier", "sort-keys-fix", "node"],
 	rules: {
 		"no-unused-vars": ["error"],
+		"node/global-require": ["error"],
 		"prettier/prettier": ["error"],
 		"sort-keys-fix/sort-keys-fix": ["error"],
 	},
