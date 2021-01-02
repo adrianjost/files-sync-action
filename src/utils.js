@@ -8,6 +8,7 @@ const {
 	FILE_PATTERNS,
 	DRY_RUN,
 	SKIP_DELETE,
+	SKIP_REPLACE,
 	SRC_REPO,
 	SRC_ROOT,
 	TARGET_ROOT,
@@ -64,7 +65,20 @@ const init = (repoFullname) => {
 	};
 
 	const copyFile = async (from, to) => {
-		// TODO [#20]: add option to skip replacement of files
+		const targetExists = await fs
+			.access(to)
+			.then(() => true)
+			.catch(() => false);
+		if (SKIP_REPLACE && targetExists) {
+			logger.info(
+				"skip copying",
+				from.replace(/\\/g, "/").replace(/^\//, ""),
+				"to",
+				to.replace(/\\/g, "/").replace(/^\//, ""),
+				"because SKIP_REPLACE = true"
+			);
+			return;
+		}
 		logger.info(
 			"copy",
 			from.replace(/\\/g, "/").replace(/^\//, ""),

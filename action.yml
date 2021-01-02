@@ -32,6 +32,10 @@ inputs:
     description: |
       Will omit all delete operations for matching files present in `TARGET_REPO` but not existant in `SRC_REPO` if set to `true`. Defaults to `false`.
     required: false
+  SKIP_REPLACE:
+    description: |
+      Will omit all write operations for matching files present in `SRC_REPO` and `TARGET_REPO` if set to `true`. Defaults to `false`.
+    required: false
   SKIP_CLEANUP:
     description: |
       If set to true or 1, the cleanup step to remove the temporary workding directory at the end will be skipped. Usefull for debugging purposes.

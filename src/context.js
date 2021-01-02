@@ -34,6 +34,9 @@ const context = {
 	SKIP_DELETE: ["1", "true"].includes(
 		core.getInput("SKIP_DELETE", { required: false }).toLowerCase()
 	),
+	SKIP_REPLACE: ["1", "true"].includes(
+		core.getInput("SKIP_REPLACE", { required: false }).toLowerCase()
+	),
 	SRC_REPO:
 		core.getInput("SRC_REPO", { required: false }) ||
 		process.env.GITHUB_REPOSITORY,

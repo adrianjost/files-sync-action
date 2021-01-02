@@ -53,6 +53,10 @@ You need more? Let me know by [opening an issue here](https://github.com/adrianj
 
 Will omit all delete operations for matching files present in `TARGET_REPO` but not existant in `SRC_REPO` if set to `true`. Defaults to `false`.
 
+### `SKIP_REPLACE`
+
+Will omit all write operations for matching files present in `SRC_REPO` and `TARGET_REPO` if set to `true`. Defaults to `false`.
+
 ### `TEMP_DIR`
 
 The working directory where all sync operations will be done. Defaults to `tmp-${Date.now().toString()}`
