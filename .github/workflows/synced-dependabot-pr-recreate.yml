@@ -14,12 +14,12 @@ jobs:
         with:
           TRIGGER_PHRASE: Someone with write access should tell dependabot to recreate this PR.
         env:
-          GITHUB_TOKEN: '${{ secrets.SYNCED_GITHUB_TOKEN }}'
+          GITHUB_TOKEN: ${{ secrets.SYNCED_GITHUB_TOKEN }}
         id: prcomm
       - name: tell dependabot to recreate pr
         if: steps.prcomm.outputs.BOOL_TRIGGERED == 'true'
         uses: peter-evans/create-or-update-comment@v1
         with:
-          token: '${{ secrets.SYNCED_GITHUB_TOKEN }}'
-          issue-number: '${{ steps.prcomm.outputs.PULL_REQUEST_NUMBER }}'
+          token: ${{ secrets.SYNCED_GITHUB_TOKEN }}
+          issue-number: ${{ steps.prcomm.outputs.PULL_REQUEST_NUMBER }}
           body: '@dependabot recreate'
