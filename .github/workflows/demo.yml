@@ -17,7 +17,7 @@ jobs:
             ^README.md$
             ^.github/workflows/sync-.*
           TARGET_REPOS: |
-            adrianjost/files-sync-target
+            adrianjost/files-sync-target:main
           GITHUB_TOKEN: ${{ secrets.SYNCED_GITHUB_TOKEN }}
       - uses: ./
         name: "With custom roots"

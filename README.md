@@ -14,11 +14,11 @@ A Github Action that can sync files from one repository to many others. This act
 
 ### `SRC_REPO`
 
-Source of truth for all files to sync. If files get added, modified or deleted here, those changes will be synced to all TARGET_REPOS. Defaults to the workflows repository (`$GITHUB_REPOSITORY`)
+Source of truth for all files to sync. If files get added, modified or deleted here, those changes will be synced to all TARGET_REPOS. Defaults to the workflows repository (`$GITHUB_REPOSITORY`). A custom branch can be defined by adding the branchname after a colon behind the SRC_REPO. `repoSlug` or `repoSlug:branchName`
 
 ### `TARGET_REPOS`
 
-**Required** New line deliminated list of repositories. Repositires are limited to those in which the token user is an owner or collaborator.
+**Required** New line deliminated list of repositories. Repositires are limited to those in which the token user is an owner or collaborator. A custom branch can be defined for each repo by adding the branchname after a colon behind the repoSlug. `repoSlug` or `repoSlug:branchName`
 
 ### `FILE_PATTERNS`
 
@@ -87,7 +87,7 @@ uses: adrianjost/files-sync-action@v1.0.1
       ^.github/workflows/sync-.*
     TARGET_REPOS: |
       adrianjost/files-sync-target
-      any/other-repo
+      any/other-repo:customBranch
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_FILES }}
 ```
 

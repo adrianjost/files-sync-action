@@ -42,11 +42,11 @@ inputs:
     required: false
   SRC_REPO:
     description: |
-      Repo from where files should be synced from. Defaults to $GITHUB_REPOSITORY.
+      Repo from where files should be synced from. Defaults to $GITHUB_REPOSITORY. A custom branch can be defined by adding the branchname after a colon behind the SRC_REPO. `repoSlug` or `repoSlug:branchName`
     required: false
   TARGET_REPOS:
     description: |
-      New line deliminated list of repositories where the files should be synced to. The given access token must have access to all listed repositories.
+      New line deliminated list of repositories. Repositires are limited to those in which the token user is an owner or collaborator. A custom branch can be defined for each repo by adding the branchname after a colon behind the repoSlug. `repoSlug` or `repoSlug:branchName`
     required: true
   TMPDIR:
     description: |

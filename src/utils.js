@@ -18,8 +18,21 @@ const getLogger = require("./log");
 const init = (repoFullname) => {
 	const logger = getLogger(repoFullname);
 
+	const getRepoSlug = () => {
+		return repoFullname.split(":")[0];
+	};
+
+	const getRepoBranch = () => {
+		return repoFullname.split(":")[1] || undefined;
+	};
+
 	const getRepoPath = () => {
-		return path.join(TMPDIR, repoFullname);
+		return path.join(
+			TMPDIR,
+			`${getRepoSlug()}${
+				getRepoBranch() === undefined ? "" : `-${getRepoBranch()}`
+			}`
+		);
 	};
 
 	const getRepoRoot = () =>
@@ -107,6 +120,8 @@ const init = (repoFullname) => {
 	};
 
 	return {
+		getRepoBranch,
+		getRepoSlug,
 		copyFile,
 		getFiles,
 		getRepoFilePath,

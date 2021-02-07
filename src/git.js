@@ -25,10 +25,12 @@ const interpolateCommitMessage = (message, data) => {
 };
 
 module.exports = {
-	init: (repoFullname) => {
-		const { getRepoPath } = utils.init(repoFullname);
+	init: (repoSlugAndBranch) => {
+		const { getRepoPath, getRepoSlug, getRepoBranch } = utils.init(
+			repoSlugAndBranch
+		);
 
-		const logger = getLogger(repoFullname);
+		const logger = getLogger(repoSlugAndBranch);
 
 		function execCmd(command, workingDir) {
 			logger.info(`EXEC: "${command}" IN "${workingDir || "./"}"`);
@@ -47,18 +49,20 @@ module.exports = {
 		}
 
 		const clone = async () => {
-			// TODO [#16]: allow customizing the branch
-			return execCmd(
-				`git clone --depth 1 https://${GITHUB_TOKEN}@github.com/${repoFullname}.git ${getRepoPath(
-					repoFullname
-				)}`
-			);
+			const command = [
+				"git clone",
+				"--depth 1",
+				getRepoBranch() === undefined ? false : ` -b ${getRepoBranch()}`,
+				`https://${GITHUB_TOKEN}@github.com/${getRepoSlug()}.git`,
+				getRepoPath(),
+			];
+			return execCmd(command.filter(Boolean).join(" "));
 		};
 
 		const hasChanges = async () => {
 			const statusOutput = await execCmd(
 				`git status --porcelain`,
-				getRepoPath(repoFullname)
+				getRepoPath()
 			);
 			return porcelainParse(statusOutput).length !== 0;
 		};
@@ -72,7 +76,7 @@ module.exports = {
 			logger.info("COMMIT CHANGES...");
 			const commitMessage = interpolateCommitMessage(COMMIT_MESSAGE, {
 				SRC_REPO: SRC_REPO,
-				TARGET_REPO: repoFullname,
+				TARGET_REPO: repoSlugAndBranch,
 			});
 			if (!DRY_RUN) {
 				const output = await execCmd(
@@ -85,7 +89,7 @@ module.exports = {
 						`git commit --message "${commitMessage}"`,
 						`git push`,
 					].join(" && "),
-					getRepoPath(repoFullname)
+					getRepoPath()
 				);
 				if (!output.includes("Update file(s) from")) {
 					throw new Error("failed to commit changes");
