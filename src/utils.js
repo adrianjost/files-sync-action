@@ -120,13 +120,13 @@ const init = (repoFullname) => {
 	};
 
 	return {
-		getRepoBranch,
-		getRepoSlug,
 		copyFile,
 		getFiles,
+		getRepoBranch,
 		getRepoFilePath,
 		getRepoPath,
 		getRepoRelativeFilePath,
+		getRepoSlug,
 		removeFiles,
 	};
 };
