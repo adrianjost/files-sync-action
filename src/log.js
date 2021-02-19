@@ -24,7 +24,7 @@ module.exports = (id) => {
 
 	const error = (...attrs) => {
 		logs[id].push(["error", joinAttributes(...attrs)]);
-		core.setFailed(`Action failed with error ${message}`);
+		core.setFailed(`Action failed with error ${joinAttributes(...attrs)}`);
 		if (!id) {
 			print();
 		}
