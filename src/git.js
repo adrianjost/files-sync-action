@@ -50,6 +50,7 @@ module.exports = {
 
 		const clone = async () => {
 			const command = [
+				"GIT_LFS_SKIP_SMUDGE=1",
 				"git clone",
 				"--depth 1",
 				getRepoBranch() === undefined ? false : ` -b ${getRepoBranch()}`,
