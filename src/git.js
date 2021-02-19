@@ -80,21 +80,27 @@ module.exports = {
 				TARGET_REPO: repoSlugAndBranch,
 			});
 			if (!DRY_RUN) {
-				const output = await execCmd(
-					[
-						`git config --local user.name "${GIT_USERNAME}"`,
-						`git config --local user.email "${GIT_EMAIL}"`,
-						`git add -A`,
-						`git status`,
-						// TODO [#17]: improve commit message to contain more details about the changes
-						`git commit --message "${commitMessage}"`,
-						`git push`,
-					].join(" && "),
-					getRepoPath()
-				);
-				if (!output.includes("Update file(s) from")) {
-					logger.error(output);
-					throw new Error("failed to commit changes");
+				let output = "";
+				const commands = [
+					`git config --local user.name "${GIT_USERNAME}"`,
+					`git config --local user.email "${GIT_EMAIL}"`,
+					`git add -A`,
+					`git status`,
+					// TODO [#17]: improve commit message to contain more details about the changes
+					`git commit --message "${commitMessage}"`,
+					`git push`,
+				];
+				try {
+					for (cmd of commands) {
+						output += await execCmd(cmd, getRepoPath());
+					}
+				} catch (error) {
+				} finally {
+					if (!output.includes("Update file(s) from")) {
+						logger.error(error);
+						logger.error(output);
+						throw new Error("failed to commit changes");
+					}
 				}
 			}
 			logger.info("CHANGES COMMITED");
