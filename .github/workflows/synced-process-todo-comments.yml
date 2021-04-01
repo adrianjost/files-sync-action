@@ -5,6 +5,7 @@ name: Process TODO comments
   push:
     branches:
       - master
+      - main
 jobs:
   collectTODO:
     name: Collect TODO
