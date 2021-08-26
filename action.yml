@@ -20,6 +20,10 @@ inputs:
   GITHUB_TOKEN:
     description: Token to use to get repos and write secrets
     required: true
+  GITHUB_SERVER:
+    description: |
+      Specify a GitHub Server other than github.com (for GitHub Enterprise deployment support)
+    required: false
   GIT_EMAIL:
     description: |
       The e-mail address used to commit the synced files. Defaults to $GITHUB_ACTOR@users.noreply.github.com
