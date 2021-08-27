@@ -27,9 +27,8 @@ const interpolateCommitMessage = (message, data) => {
 
 module.exports = {
 	init: (repoSlugAndBranch) => {
-		const { getRepoPath, getRepoSlug, getRepoBranch } = utils.init(
-			repoSlugAndBranch
-		);
+		const { getRepoPath, getRepoSlug, getRepoBranch } =
+			utils.init(repoSlugAndBranch);
 
 		const logger = getLogger(repoSlugAndBranch);
 
