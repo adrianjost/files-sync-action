@@ -12,6 +12,10 @@ A Github Action that can sync files from one repository to many others. This act
 
 **Required** Token to use to get repos and write secrets. `${{secrets.GITHUB_TOKEN}}` will **not** work.
 
+### `GITHUB_SERVER`
+
+Configurable GitHub Server (to support GitHub Enterprise deployments).  If not specified, will default to `github.com`. Should not include `http(s)://`.  Should also not include trailing `/` character.
+
 ### `SRC_REPO`
 
 Source of truth for all files to sync. If files get added, modified or deleted here, those changes will be synced to all TARGET_REPOS. Defaults to the workflows repository (`$GITHUB_REPOSITORY`). A custom branch can be defined by adding the branchname after a colon behind the SRC_REPO. `repoSlug` or `repoSlug:branchName`
