@@ -21,8 +21,9 @@ const context = {
 	FILE_PATTERNS: parseMultilineInput(core.getInput("FILE_PATTERNS")).map(
 		(s) => new RegExp(s)
 	),
+	GITHUB_SERVER:
+		core.getInput("GITHUB_SERVER", { required: false }) || "github.com",
 	GITHUB_TOKEN: core.getInput("GITHUB_TOKEN", { required: true }),
-	GITHUB_SERVER: core.getInput("GITHUB_SERVER", { required: false }) || "github.com",
 	GIT_EMAIL:
 		core.getInput("GIT_EMAIL") ||
 		`${process.env.GITHUB_ACTOR}@users.noreply.github.com`,
