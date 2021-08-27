@@ -3,6 +3,7 @@ const { parse: porcelainParse } = require("@putout/git-status-porcelain");
 
 const {
 	GITHUB_TOKEN,
+	GITHUB_SERVER,
 	SRC_REPO,
 	COMMIT_MESSAGE,
 	GIT_USERNAME,
@@ -53,7 +54,7 @@ module.exports = {
 				"git clone",
 				"--depth 1",
 				getRepoBranch() === undefined ? false : ` -b ${getRepoBranch()}`,
-				`https://${GITHUB_TOKEN}@github.com/${getRepoSlug()}.git`,
+				`https://${GITHUB_TOKEN}@${GITHUB_SERVER}/${getRepoSlug()}.git`,
 				getRepoPath(),
 			];
 			return execCmd(command.filter(Boolean).join(" "));
