@@ -63,7 +63,6 @@ const init = (repoFullname) => {
 	};
 
 	const getFiles = async () => {
-		// TODO [#19]: evaluate if ignoring .git is a good idea
 		const files = await listDir(getRepoPath(), [".git"]);
 		logger.debug(
 			"FILES:",
