@@ -22,7 +22,7 @@ Source of truth for all files to sync. If files get added, modified or deleted h
 
 ### `TARGET_REPOS`
 
-**Required** New line deliminated list of repositories. Repositires are limited to those in which the token user is an owner or collaborator. A custom branch can be defined for each repo by adding the branchname after a colon behind the repoSlug. `repoSlug` or `repoSlug:branchName`
+**Required** New line deliminated list of repositories. Repositories are limited to those in which the token user is an owner or collaborator. A custom branch can be defined for each repo by adding the branchname after a colon behind the repoSlug. `repoSlug` or `repoSlug:branchName`
 
 ### `FILE_PATTERNS`
 
@@ -32,7 +32,7 @@ Source of truth for all files to sync. If files get added, modified or deleted h
 2. overwritten from the `SRC_REPO` if they already exist in the `TARGET_REPO`
 3. created in the `TARGET_REPO`, if they do not exist yet there.
 
-All filpaths start at the repository root without a leading slash. The delimiter between path segments is always a forward slash.
+All filepaths start at the repository root without a leading slash. The delimiter between path segments is always a forward slash.
 
 ### `SRC_ROOT`
 
@@ -40,7 +40,7 @@ Prepends this to all filepaths in the source repository. Defaults to `/`.
 
 ### `TARGET_ROOT`
 
-Prepends this to all filepaths in the target repository. It is the same for all target repositories and can not be adjusted on a per repo basis. Defaults to `/`.
+Prepends this to all filepaths in the target repository. It is the same for all target repositories and cannot be adjusted on a per repo basis. Defaults to `/`.
 
 ### `COMMIT_MESSAGE`
 
@@ -67,7 +67,7 @@ The working directory where all sync operations will be done. Defaults to `tmp-$
 
 ### `SKIP_CLEANUP`
 
-If set to true or 1, the cleanup step to remove the temporary workding directory at the end will be skipped. Usefull for debugging purposes. Defaults to `false`.
+If set to `true` or `1`, the cleanup step to remove the temporary workding directory at the end will be skipped. Usefull for debugging purposes. Defaults to `false`.
 
 ### `GIT_EMAIL`
 
@@ -103,7 +103,7 @@ See the workflows in [this repository](https://github.com/adrianjost/.github) fo
 
 ## Local Testing
 
-create `./test.js` with the following content to execute the code locally.
+Create `./test.js` with the following content to execute the code locally.
 
 ```
 process.env.INPUT_SRC_REPO = "adrianjost/files-sync-action";
