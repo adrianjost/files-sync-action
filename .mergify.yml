@@ -1,5 +1,9 @@
 # GENERATED CONTENT
 # remove repo from adrianjost/.github/synced/workflows/generator.js before editing
+queue_rules:
+  - name: branchProtection
+    conditions:
+      - '-merged'
 pull_request_rules:
   - name: label PRs with conflicts
     conditions:
@@ -27,16 +31,16 @@ pull_request_rules:
     conditions:
       - author~=dependabot(-preview)?\[bot\]
     actions:
-      merge:
+      queue:
+        name: branchProtection
         method: squash
-        strict: smart+fasttrack
   - name: auto merge when ready to merge label is set
     conditions:
       - label=ready to merge
     actions:
-      merge:
+      queue:
+        name: branchProtection
         method: merge
-        strict: smart+fasttrack
   - name: remove ready to merge when merged
     conditions:
       - merged
