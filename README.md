@@ -22,7 +22,7 @@ Source of truth for all files to sync. If files get added, modified or deleted h
 
 ### `TARGET_REPOS`
 
-**Required** New line deliminated list of repositories. Repositories are limited to those in which the token user is an owner or collaborator. A custom branch can be defined for each repo by adding the branchname after a colon behind the repoSlug. `repoSlug` or `repoSlug:branchName`
+**Required** New line deliminated list of repositories. Repositories are limited to those in which the token user is an owner or collaborator. A custom branch can be defined for each repo by adding the branchname after a colon behind the repoSlug. `repoSlug` or `repoSlug:branchName`. The custom branch must already exist in the target repo.
 
 ### `FILE_PATTERNS`
 
