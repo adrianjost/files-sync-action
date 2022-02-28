@@ -94,9 +94,9 @@ module.exports = {
 						output += await execCmd(cmd, getRepoPath());
 					}
 				} catch (error) {
+					logger.error(error);
 				} finally {
 					if (!output.includes("Update file(s) from")) {
-						logger.error(error);
 						logger.error(output);
 						throw new Error("failed to commit changes");
 					}
