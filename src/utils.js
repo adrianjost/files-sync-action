@@ -110,6 +110,7 @@ const init = (repoFullname) => {
 				"SKIP REMOVING FILES because `SKIP_DELETE` is set to `true`",
 				filePaths.map((f) => `"${f}"`).join(", ")
 			);
+			return;
 		}
 		logger.info("REMOVE FILES", filePaths);
 		if (DRY_RUN) {
