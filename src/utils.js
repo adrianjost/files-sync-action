@@ -29,7 +29,8 @@ const init = (repoFullname) => {
 	const getRepoPath = () => {
 		return path.join(
 			TMPDIR,
-			`${getRepoSlug()}${getRepoBranch() === undefined ? "" : `-${getRepoBranch()}`
+			`${getRepoSlug()}${
+				getRepoBranch() === undefined ? "" : `-${getRepoBranch()}`
 			}`
 		);
 	};
