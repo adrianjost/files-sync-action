@@ -33,7 +33,7 @@
 		"eslint-plugin-node": "^11.1.0",
 		"eslint-plugin-prettier": "^4.0.0",
 		"eslint-plugin-sort-keys-fix": "^1.1.2",
-		"husky": "^8.0.0",
+		"husky": "^8.0.1",
 		"prettier": "^2.6.2"
 	},
 	"husky": {
