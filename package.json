@@ -20,7 +20,7 @@
 	},
 	"author": "Adrian Jost",
 	"dependencies": {
-		"@actions/core": "^1.9.1",
+		"@actions/core": "^1.10.0",
 		"@actions/github": "^5.1.0",
 		"@putout/git-status-porcelain": "^2.0.1",
 		"recursive-readdir": "^2.2.2",
