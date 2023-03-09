@@ -24,7 +24,7 @@
 		"@actions/github": "^5.1.1",
 		"@putout/git-status-porcelain": "^2.0.1",
 		"recursive-readdir": "^2.2.3",
-		"rimraf": "^3.0.2"
+		"rimraf": "^4.4.0"
 	},
 	"devDependencies": {
 		"@zeit/ncc": "^0.22.3",
