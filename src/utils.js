@@ -1,7 +1,7 @@
 const fs = require("fs").promises;
 const path = require("path");
 const listDir = require("recursive-readdir");
-const rimraf = require("rimraf");
+const { rimraf } = require("rimraf");
 
 const {
 	TMPDIR,
