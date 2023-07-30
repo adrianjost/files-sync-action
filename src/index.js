@@ -52,6 +52,9 @@ const main = async () => {
 					),
 				]);
 
+				// REFRESH INDEX
+				await gitRepo.refreshIndex();
+
 				// COMMIT UPDATES
 				await gitRepo.commitAll();
 

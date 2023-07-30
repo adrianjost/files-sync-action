@@ -68,6 +68,10 @@ module.exports = {
 			return porcelainParse(statusOutput).length !== 0;
 		};
 
+		const refreshIndex = async () => {
+			await execCmd('git update-index --really-refresh');
+		};
+
 		const commitAll = async () => {
 			if (!(await hasChanges())) {
 				logger.info("NO CHANGES DETECTED");
@@ -107,6 +111,7 @@ module.exports = {
 
 		return {
 			clone,
+			refreshIndex,
 			commitAll,
 		};
 	},
