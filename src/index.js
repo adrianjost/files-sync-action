@@ -41,7 +41,7 @@ const main = async () => {
 				// UPDATE FILES
 				await Promise.all([
 					utilsRepo.removeFiles(removedFiles),
-					srcFiles.map(async (srcFile) =>
+					...srcFiles.map(async (srcFile) =>
 						utilsRepo.copyFile(
 							srcFile,
 							path.join(
@@ -51,6 +51,9 @@ const main = async () => {
 						)
 					),
 				]);
+
+				// REFRESH INDEX
+				await gitRepo.refreshIndex();
 
 				// COMMIT UPDATES
 				await gitRepo.commitAll();
