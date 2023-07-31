@@ -69,7 +69,7 @@ module.exports = {
 		};
 
 		const refreshIndex = async () => {
-			await execCmd('git update-index --really-refresh');
+			await execCmd("git update-index --really-refresh");
 		};
 
 		const commitAll = async () => {
@@ -111,8 +111,8 @@ module.exports = {
 
 		return {
 			clone,
-			refreshIndex,
 			commitAll,
+			refreshIndex,
 		};
 	},
 };
