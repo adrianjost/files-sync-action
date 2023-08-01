@@ -68,10 +68,6 @@ module.exports = {
 			return porcelainParse(statusOutput).length !== 0;
 		};
 
-		const refreshIndex = async () => {
-			await execCmd("git update-index --really-refresh");
-		};
-
 		const commitAll = async () => {
 			if (!(await hasChanges())) {
 				logger.info("NO CHANGES DETECTED");
@@ -88,6 +84,7 @@ module.exports = {
 				const commands = [
 					`git config --local user.name "${GIT_USERNAME}"`,
 					`git config --local user.email "${GIT_EMAIL}"`,
+					`git update-index --really-refresh`,
 					`git add -A`,
 					`git status`,
 					`git commit --message "${commitMessage}"`,
@@ -112,7 +109,6 @@ module.exports = {
 		return {
 			clone,
 			commitAll,
-			refreshIndex,
 		};
 	},
 };
