@@ -2,7 +2,7 @@ const fs = require("fs");
 
 const core = require("@actions/core");
 
-const logger = require("./log")();
+const log = require("./log");
 
 const parseMultilineInput = (multilineInput) => {
 	return multilineInput.split("\n").map((e) => e.trim());
@@ -54,10 +54,10 @@ const context = {
 
 while (fs.existsSync(context.TMPDIR)) {
 	context.TMPDIR = `tmp-${Date.now().toString()}`;
-	logger.info(`TEMP_DIR already exists. Using "${context.TMPDIR}" now.`);
+	log.info(`TEMP_DIR already exists. Using "${context.TMPDIR}" now.`);
 }
 
-logger.info("Context:", {
+log.info("Context:", {
 	...context,
 	GITHUB_TOKEN: "<secret>",
 });
