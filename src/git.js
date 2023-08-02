@@ -84,7 +84,7 @@ module.exports = {
 				const commands = [
 					`git config --local user.name "${GIT_USERNAME}"`,
 					`git config --local user.email "${GIT_EMAIL}"`,
-					`git update-index --really-refresh`,
+					// `git update-index --really-refresh`,
 					`git add -A`,
 					`git status`,
 					`git commit --message "${commitMessage}"`,
