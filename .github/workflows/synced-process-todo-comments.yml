@@ -11,7 +11,7 @@ jobs:
     name: Collect TODO
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           token: ${{ secrets.SYNCED_GITHUB_TOKEN }}
       - name: Collect TODO
