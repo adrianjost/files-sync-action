@@ -13,11 +13,9 @@ const {
 	SRC_ROOT,
 	TARGET_ROOT,
 } = require("./context");
-const getLogger = require("./log");
+const log = require("./log");
 
 const init = (repoFullname) => {
-	const logger = getLogger(repoFullname);
-
 	const getRepoSlug = () => {
 		return repoFullname.split(":")[0];
 	};
@@ -51,7 +49,7 @@ const init = (repoFullname) => {
 			.replace(new RegExp(`^${TMPDIR}/${repoFullname}${getRepoRoot()}`), "");
 
 	const getMatchingFiles = (files) => {
-		logger.info(
+		log.info(
 			"FILE_PATTERNS",
 			FILE_PATTERNS.map((a) => a.toString())
 		);
@@ -64,12 +62,9 @@ const init = (repoFullname) => {
 
 	const getFiles = async () => {
 		const files = await listDir(getRepoPath(), [".git"]);
-		logger.debug(
-			"FILES:",
-			JSON.stringify(files.map(getPrettyPath), undefined, 2)
-		);
+		log.debug("FILES:", JSON.stringify(files.map(getPrettyPath), undefined, 2));
 		const matchingFiles = getMatchingFiles(files);
-		logger.info(
+		log.info(
 			"MATCHING FILES:",
 			JSON.stringify(matchingFiles.map(getPrettyPath), undefined, 2)
 		);
@@ -82,7 +77,7 @@ const init = (repoFullname) => {
 			.then(() => true)
 			.catch(() => false);
 		if (SKIP_REPLACE && targetExists) {
-			logger.info(
+			log.info(
 				"skip copying",
 				from.replace(/\\/g, "/").replace(/^\//, ""),
 				"to",
@@ -91,7 +86,7 @@ const init = (repoFullname) => {
 			);
 			return;
 		}
-		logger.info(
+		log.info(
 			"copy",
 			from.replace(/\\/g, "/").replace(/^\//, ""),
 			"to",
@@ -106,13 +101,13 @@ const init = (repoFullname) => {
 
 	const removeFiles = async (filePaths) => {
 		if (SKIP_DELETE) {
-			logger.info(
+			log.info(
 				"SKIP REMOVING FILES because `SKIP_DELETE` is set to `true`",
 				filePaths.map((f) => `"${f}"`).join(", ")
 			);
 			return;
 		}
-		logger.info("REMOVE FILES", filePaths);
+		log.info("REMOVE FILES", filePaths);
 		if (DRY_RUN) {
 			return;
 		}

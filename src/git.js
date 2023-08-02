@@ -12,7 +12,7 @@ const {
 } = require("./context");
 
 const utils = require("./utils");
-const getLogger = require("./log");
+const log = require("./log");
 
 const interpolateCommitMessage = (message, data) => {
 	let newMessage = message;
@@ -30,10 +30,8 @@ module.exports = {
 		const { getRepoPath, getRepoSlug, getRepoBranch } =
 			utils.init(repoSlugAndBranch);
 
-		const logger = getLogger(repoSlugAndBranch);
-
 		function execCmd(command, workingDir) {
-			logger.info(`EXEC: "${command}" IN "${workingDir || "./"}"`);
+			log.info(`EXEC: "${command}" IN "${workingDir || "./"}"`);
 			return new Promise((resolve, reject) => {
 				exec(
 					command,
@@ -41,7 +39,7 @@ module.exports = {
 						cwd: workingDir,
 					},
 					function (error, stdout) {
-						logger.info(`OUTPUT: "${error}${stdout}"`);
+						log.info(`OUTPUT: "${error}${stdout}"`);
 						error ? reject(error) : resolve(stdout.trim());
 					}
 				);
@@ -70,11 +68,11 @@ module.exports = {
 
 		const commitAll = async () => {
 			if (!(await hasChanges())) {
-				logger.info("NO CHANGES DETECTED");
+				log.info("NO CHANGES DETECTED");
 				return;
 			}
-			logger.info("CHANGES DETECTED");
-			logger.info("COMMIT CHANGES...");
+			log.info("CHANGES DETECTED");
+			log.info("COMMIT CHANGES...");
 			const commitMessage = interpolateCommitMessage(COMMIT_MESSAGE, {
 				SRC_REPO: SRC_REPO,
 				TARGET_REPO: repoSlugAndBranch,
@@ -84,8 +82,7 @@ module.exports = {
 				const commands = [
 					`git config --local user.name "${GIT_USERNAME}"`,
 					`git config --local user.email "${GIT_EMAIL}"`,
-					// `git update-index --really-refresh`,
-					`git add -A`,
+					`git add --all`,
 					`git status`,
 					`git commit --message "${commitMessage}"`,
 					`git push`,
@@ -95,15 +92,15 @@ module.exports = {
 						output += await execCmd(cmd, getRepoPath());
 					}
 				} catch (error) {
-					logger.error(error);
+					log.error(error);
 				} finally {
 					if (!output.includes("Update file(s) from")) {
-						logger.error(output);
+						log.error(output);
 						throw new Error("failed to commit changes");
 					}
 				}
 			}
-			logger.info("CHANGES COMMITED");
+			log.info("CHANGES COMMITED");
 		};
 
 		return {
