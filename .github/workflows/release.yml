@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           token: ${{ secrets.SYNCED_GITHUB_TOKEN }}
           ref: "master"
@@ -20,7 +20,7 @@ jobs:
           git add dist/index.js
           git commit -m "chore: publish dist" || echo "nothing to commit"
           git push origin master
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: master
       - name: Test Action
@@ -34,7 +34,7 @@ jobs:
             adrianjost/files-sync-target
           GITHUB_TOKEN: ${{ secrets.SYNCED_GITHUB_TOKEN }}
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: master
       - name: Semantic Release
