@@ -27,7 +27,7 @@
 		"rimraf": "^5.0.5"
 	},
 	"devDependencies": {
-		"@vercel/ncc": "^0.38.0",
+		"@vercel/ncc": "^0.38.1",
 		"eslint": "^8.52.0",
 		"eslint-config-prettier": "^9.0.0",
 		"eslint-plugin-node": "^11.1.0",
