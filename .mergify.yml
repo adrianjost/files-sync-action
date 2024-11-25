@@ -1,9 +1,17 @@
 # GENERATED CONTENT
 # remove repo from adrianjost/.github/synced/workflows/generator.js before editing
 queue_rules:
+  - name: auto merge when ready to merge label is set
+    queue_conditions:
+      - label=ready to merge
+    merge_conditions: []
+    merge_method: merge
   - name: branchProtection
-    conditions:
+    queue_conditions:
+      - author~=dependabot(-preview)?\[bot\]
+    merge_conditions:
       - '-merged'
+    merge_method: squash
 pull_request_rules:
   - name: label PRs with conflicts
     conditions:
@@ -27,20 +35,10 @@ pull_request_rules:
     actions:
       comment:
         message: Someone with write access should tell dependabot to recreate this PR.
-  - name: auto merge passing Dependabot pull requests
-    conditions:
-      - author~=dependabot(-preview)?\[bot\]
+  - name: auto merge passing Dependabot pull requests + auto merge when ready to merge label is set
+    conditions: []
     actions:
-      queue:
-        name: branchProtection
-        method: squash
-  - name: auto merge when ready to merge label is set
-    conditions:
-      - label=ready to merge
-    actions:
-      queue:
-        name: branchProtection
-        method: merge
+      queue: {}
   - name: remove ready to merge when merged
     conditions:
       - merged
