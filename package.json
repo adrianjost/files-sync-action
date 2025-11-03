@@ -24,7 +24,7 @@
 		"@actions/github": "^6.0.1",
 		"@putout/git-status-porcelain": "^3.0.0",
 		"recursive-readdir": "^2.2.3",
-		"rimraf": "^6.0.1"
+		"rimraf": "^6.1.0"
 	},
 	"devDependencies": {
 		"@vercel/ncc": "^0.38.4",
