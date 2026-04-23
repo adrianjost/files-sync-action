@@ -48,7 +48,7 @@ pull_request_rules:
         remove:
           - ready to merge
 priority_rules:
-  - name: priority for queue `auto merge when ready to merge label is set`
+  - name: priority for queue `auto merge` when label is set
     conditions:
       - label=ready to merge
     priority: 2250
