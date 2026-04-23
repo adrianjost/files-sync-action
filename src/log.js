@@ -1,4 +1,4 @@
-const core = require("@actions/core");
+import * as core from "@actions/core";
 
 const joinAttributes = (...attrs) =>
 	attrs
@@ -25,9 +25,5 @@ const info = (...attrs) => {
 const warn = (...attrs) => {
 	core.warning(joinAttributes(...attrs));
 };
-module.exports = {
-	debug,
-	error,
-	info,
-	warn,
-};
+
+export { debug, error, info, warn };

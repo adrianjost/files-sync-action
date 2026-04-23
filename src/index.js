@@ -1,10 +1,10 @@
-const path = require("path");
+import path from "path";
 
-const { SRC_REPO, TARGET_REPOS, TMPDIR, SKIP_CLEANUP } = require("./context");
-const git = require("./git");
-const { removeDir } = require("./utils");
-
-const utils = require("./utils");
+import { SKIP_CLEANUP, SRC_REPO, TARGET_REPOS, TMPDIR } from "./context.js";
+import * as git from "./git.js";
+import * as log from "./log.js";
+import { removeDir } from "./utils.js";
+import * as utils from "./utils.js";
 
 const main = async () => {
 	let error;
@@ -62,4 +62,4 @@ const main = async () => {
 	}
 };
 
-module.exports = main;
+export default main;
