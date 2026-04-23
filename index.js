@@ -1,7 +1,6 @@
-const core = require("@actions/core");
-try {
-	// eslint-disable-next-line node/global-require
-	require("./src/index")();
-} catch (error) {
+import * as core from "@actions/core";
+import main from "./src/index.js";
+
+main().catch((error) => {
 	core.setFailed(`Action failed with error ${error}`);
-}
+});
