@@ -1,18 +1,18 @@
-const { exec } = require("child_process");
-const { parse: porcelainParse } = require("@putout/git-status-porcelain");
+import { exec } from "child_process";
 
-const {
-	GITHUB_TOKEN,
-	GITHUB_SERVER,
-	SRC_REPO,
+import { parse as porcelainParse } from "@putout/git-status-porcelain";
+
+import {
 	COMMIT_MESSAGE,
-	GIT_USERNAME,
-	GIT_EMAIL,
 	DRY_RUN,
-} = require("./context");
-
-const utils = require("./utils");
-const log = require("./log");
+	GIT_EMAIL,
+	GIT_USERNAME,
+	GITHUB_SERVER,
+	GITHUB_TOKEN,
+	SRC_REPO,
+} from "./context.js";
+import * as log from "./log.js";
+import * as utils from "./utils.js";
 
 const interpolateCommitMessage = (message, data) => {
 	let newMessage = message;
@@ -25,85 +25,80 @@ const interpolateCommitMessage = (message, data) => {
 	return newMessage;
 };
 
-module.exports = {
-	init: (repoSlugAndBranch) => {
-		const { getRepoPath, getRepoSlug, getRepoBranch } =
-			utils.init(repoSlugAndBranch);
+export const init = (repoSlugAndBranch) => {
+	const { getRepoPath, getRepoSlug, getRepoBranch } =
+		utils.init(repoSlugAndBranch);
 
-		function execCmd(command, workingDir) {
-			log.info(`EXEC: "${command}" IN "${workingDir || "./"}"`);
-			return new Promise((resolve, reject) => {
-				exec(
-					command,
-					{
-						cwd: workingDir,
-					},
-					function (error, stdout) {
-						if (error) {
-							log.info(`OUTPUT ERROR: ${error}`);
-						}
-						log.info(`OUTPUT STDOUT: ${stdout ? `"${stdout}"` : "none"}`);
-						error ? reject(error) : resolve(stdout.trim());
+	function execCmd(command, workingDir) {
+		log.info(`EXEC: "${command}" IN "${workingDir || "./"}"`);
+		return new Promise((resolve, reject) => {
+			exec(
+				command,
+				{
+					cwd: workingDir,
+				},
+				function (error, stdout) {
+					if (error) {
+						log.info(`OUTPUT ERROR: ${error}`);
 					}
-				);
-			});
-		}
-
-		const clone = async () => {
-			const command = [
-				"GIT_LFS_SKIP_SMUDGE=1",
-				"git clone",
-				"--depth 1",
-				getRepoBranch() === undefined ? false : ` -b ${getRepoBranch()}`,
-				`https://${GITHUB_TOKEN}@${GITHUB_SERVER}/${getRepoSlug()}.git`,
-				getRepoPath(),
-			];
-			return execCmd(command.filter(Boolean).join(" "));
-		};
-
-		const hasChanges = async () => {
-			const statusOutput = await execCmd(
-				`git status --porcelain`,
-				getRepoPath()
-			);
-			return porcelainParse(statusOutput).length !== 0;
-		};
-
-		const commitAll = async () => {
-			if (!(await hasChanges())) {
-				log.info("NO CHANGES DETECTED");
-				return;
-			}
-			log.info("CHANGES DETECTED");
-			log.info("COMMIT CHANGES...");
-			const commitMessage = interpolateCommitMessage(COMMIT_MESSAGE, {
-				SRC_REPO: SRC_REPO,
-				TARGET_REPO: repoSlugAndBranch,
-			});
-			if (!DRY_RUN) {
-				const commands = [
-					`git config --local user.name "${GIT_USERNAME}"`,
-					`git config --local user.email "${GIT_EMAIL}"`,
-					`git add --all`,
-					`git status`,
-					`git commit --message "${commitMessage}"`,
-					`git push`,
-				];
-				try {
-					for (cmd of commands) {
-						await execCmd(cmd, getRepoPath());
-					}
-				} catch (error) {
-					log.error(error);
-					throw new Error("failed to commit changes");
+					log.info(`OUTPUT STDOUT: ${stdout ? `"${stdout}"` : "none"}`);
+					error ? reject(error) : resolve(stdout.trim());
 				}
-			}
-			log.info("CHANGES COMMITED");
-		};
+			);
+		});
+	}
 
-		return {
-			clone,
-			commitAll,
-		};
-	},
+	const clone = async () => {
+		const command = [
+			"GIT_LFS_SKIP_SMUDGE=1",
+			"git clone",
+			"--depth 1",
+			getRepoBranch() === undefined ? false : ` -b ${getRepoBranch()}`,
+			`https://${GITHUB_TOKEN}@${GITHUB_SERVER}/${getRepoSlug()}.git`,
+			getRepoPath(),
+		];
+		return execCmd(command.filter(Boolean).join(" "));
+	};
+
+	const hasChanges = async () => {
+		const statusOutput = await execCmd(`git status --porcelain`, getRepoPath());
+		return porcelainParse(statusOutput).length !== 0;
+	};
+
+	const commitAll = async () => {
+		if (!(await hasChanges())) {
+			log.info("NO CHANGES DETECTED");
+			return;
+		}
+		log.info("CHANGES DETECTED");
+		log.info("COMMIT CHANGES...");
+		const commitMessage = interpolateCommitMessage(COMMIT_MESSAGE, {
+			SRC_REPO: SRC_REPO,
+			TARGET_REPO: repoSlugAndBranch,
+		});
+		if (!DRY_RUN) {
+			const commands = [
+				`git config --local user.name "${GIT_USERNAME}"`,
+				`git config --local user.email "${GIT_EMAIL}"`,
+				`git add --all`,
+				`git status`,
+				`git commit --message "${commitMessage}"`,
+				`git push`,
+			];
+			try {
+				for (const cmd of commands) {
+					await execCmd(cmd, getRepoPath());
+				}
+			} catch (error) {
+				log.error(error);
+				throw new Error("failed to commit changes");
+			}
+		}
+		log.info("CHANGES COMMITED");
+	};
+
+	return {
+		clone,
+		commitAll,
+	};
 };

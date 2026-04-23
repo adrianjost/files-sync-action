@@ -1,19 +1,20 @@
-const fs = require("fs").promises;
-const path = require("path");
-const listDir = require("recursive-readdir");
-const { rimraf } = require("rimraf");
+import { promises as fs } from "fs";
+import path from "path";
 
-const {
-	TMPDIR,
-	FILE_PATTERNS,
+import listDir from "recursive-readdir";
+import { rimraf } from "rimraf";
+
+import {
 	DRY_RUN,
+	FILE_PATTERNS,
 	SKIP_DELETE,
 	SKIP_REPLACE,
 	SRC_REPO,
 	SRC_ROOT,
 	TARGET_ROOT,
-} = require("./context");
-const log = require("./log");
+	TMPDIR,
+} from "./context.js";
+import * as log from "./log.js";
 
 const init = (repoFullname) => {
 	const getRepoSlug = () => {
@@ -54,7 +55,7 @@ const init = (repoFullname) => {
 			FILE_PATTERNS.map((a) => a.toString())
 		);
 		return files.filter((file) => {
-			cleanFile = getPrettyPath(file);
+			const cleanFile = getPrettyPath(file);
 			const hasMatch = FILE_PATTERNS.some((r) => r.test(cleanFile));
 			return hasMatch;
 		});
@@ -127,23 +128,7 @@ const init = (repoFullname) => {
 };
 
 const removeDir = async (dir) => {
-	new Promise((resolve, reject) => {
-		rimraf(
-			dir,
-			{
-				disableGlob: true,
-			},
-			(error) => {
-				if (error) {
-					return reject(error);
-				}
-				resolve();
-			}
-		);
-	});
+	await rimraf(dir, { glob: false });
 };
 
-module.exports = {
-	init,
-	removeDir,
-};
+export { init, removeDir };
