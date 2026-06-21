@@ -10,7 +10,7 @@ queue_rules:
     queue_conditions:
       - author~=dependabot(-preview)?\[bot\]
     merge_conditions:
-      - '-merged'
+      - -merged
     merge_method: squash
 pull_request_rules:
   - name: label PRs with conflicts
@@ -23,7 +23,7 @@ pull_request_rules:
   - name: remove has conflicts label if conflicts got resolved
     conditions:
       - label~=has conflicts
-      - '-conflict'
+      - -conflict
     actions:
       label:
         remove:
