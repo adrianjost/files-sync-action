@@ -65,7 +65,7 @@ export const init = (repoSlugAndBranch) => {
 			execFile(
 				"git",
 				args,
-				{ shell: false, env: { ...process.env, GIT_LFS_SKIP_SMUDGE: "1" } },
+				{ env: { ...process.env, GIT_LFS_SKIP_SMUDGE: "1" }, shell: false },
 				function (error, stdout) {
 					if (error) {
 						log.info(`OUTPUT ERROR: ${error}`);
@@ -78,7 +78,10 @@ export const init = (repoSlugAndBranch) => {
 	};
 
 	const hasChanges = async () => {
-		const statusOutput = await execCmd(["git", "status", "--porcelain"], getRepoPath());
+		const statusOutput = await execCmd(
+			["git", "status", "--porcelain"],
+			getRepoPath()
+		);
 		return porcelainParse(statusOutput).length !== 0;
 	};
 
