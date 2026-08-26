@@ -1,4 +1,4 @@
-import { exec } from "child_process";
+import { execFile } from "child_process";
 
 import { parse as porcelainParse } from "@putout/git-status-porcelain";
 
@@ -20,7 +20,7 @@ const interpolateCommitMessage = (message, data) => {
 		if (key === "COMMIT_MESSAGE") {
 			return;
 		}
-		newMessage = newMessage.replace(new RegExp(`%${key}%`, "g"), data[key]);
+		newMessage = newMessage.split(`%${key}%`).join(data[key]);
 	});
 	return newMessage;
 };
@@ -29,13 +29,16 @@ export const init = (repoSlugAndBranch) => {
 	const { getRepoPath, getRepoSlug, getRepoBranch } =
 		utils.init(repoSlugAndBranch);
 
-	function execCmd(command, workingDir) {
-		log.info(`EXEC: "${command}" IN "${workingDir || "./"}"`);
+	function execCmd(args, workingDir) {
+		const [cmd, ...cmdArgs] = args;
+		log.info(`EXEC: "${args.join(" ")}" IN "${workingDir || "./"}"`);
 		return new Promise((resolve, reject) => {
-			exec(
-				command,
+			execFile(
+				cmd,
+				cmdArgs,
 				{
 					cwd: workingDir,
+					shell: false,
 				},
 				function (error, stdout) {
 					if (error) {
@@ -49,19 +52,36 @@ export const init = (repoSlugAndBranch) => {
 	}
 
 	const clone = async () => {
-		const command = [
-			"GIT_LFS_SKIP_SMUDGE=1",
-			"git clone",
-			"--depth 1",
-			getRepoBranch() === undefined ? false : ` -b ${getRepoBranch()}`,
+		const args = [
+			"clone",
+			"--depth",
+			"1",
+			...(getRepoBranch() !== undefined ? ["-b", getRepoBranch()] : []),
 			`https://${GITHUB_TOKEN}@${GITHUB_SERVER}/${getRepoSlug()}.git`,
 			getRepoPath(),
 		];
-		return execCmd(command.filter(Boolean).join(" "));
+		log.info(`EXEC: "git ${args.join(" ")}" IN "./"`);
+		return new Promise((resolve, reject) => {
+			execFile(
+				"git",
+				args,
+				{ env: { ...process.env, GIT_LFS_SKIP_SMUDGE: "1" }, shell: false },
+				function (error, stdout) {
+					if (error) {
+						log.info(`OUTPUT ERROR: ${error}`);
+					}
+					log.info(`OUTPUT STDOUT: ${stdout ? `"${stdout}"` : "none"}`);
+					error ? reject(error) : resolve(stdout.trim());
+				}
+			);
+		});
 	};
 
 	const hasChanges = async () => {
-		const statusOutput = await execCmd(`git status --porcelain`, getRepoPath());
+		const statusOutput = await execCmd(
+			["git", "status", "--porcelain"],
+			getRepoPath()
+		);
 		return porcelainParse(statusOutput).length !== 0;
 	};
 
@@ -78,12 +98,12 @@ export const init = (repoSlugAndBranch) => {
 		});
 		if (!DRY_RUN) {
 			const commands = [
-				`git config --local user.name "${GIT_USERNAME}"`,
-				`git config --local user.email "${GIT_EMAIL}"`,
-				`git add --all`,
-				`git status`,
-				`git commit --message "${commitMessage}"`,
-				`git push`,
+				["git", "config", "--local", "user.name", GIT_USERNAME],
+				["git", "config", "--local", "user.email", GIT_EMAIL],
+				["git", "add", "--all"],
+				["git", "status"],
+				["git", "commit", "--message", commitMessage],
+				["git", "push"],
 			];
 			try {
 				for (const cmd of commands) {
